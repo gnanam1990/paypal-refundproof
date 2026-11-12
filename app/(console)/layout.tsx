@@ -31,10 +31,16 @@ function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="shell">
       <aside className="rail">
-        <div className="brand">
-          RefundProof
-          <small>PayPal sandbox refunds</small>
-        </div>
+        <Link className="brand" href="/cases" aria-label="RefundProof cases">
+          <span className="brand-mark" aria-hidden="true">
+            <Icon name="shield" />
+          </span>
+          <span>
+            RefundProof
+            <small>Evidence-bound refunds</small>
+          </span>
+        </Link>
+        <p className="nav-label">Workspace</p>
         <nav aria-label="Console">
           <ul>
             {NAV.map((n) => (
@@ -51,11 +57,15 @@ function Shell({ children }: { children: ReactNode }) {
           </ul>
         </nav>
         <div className="who">
-          <span>
-            {actor.displayName}
-            <br />
-            <span className="small">{actor.role.toLowerCase()}</span>
-          </span>
+          <div className="identity">
+            <span className="avatar" aria-hidden="true">
+              {actor.displayName.slice(0, 1).toUpperCase()}
+            </span>
+            <span className="identity-copy">
+              <strong>{actor.displayName}</strong>
+              <small>{actor.role.toLowerCase()}</small>
+            </span>
+          </div>
           <button
             type="button"
             className="secondary"
@@ -68,18 +78,30 @@ function Shell({ children }: { children: ReactNode }) {
           </button>
         </div>
       </aside>
-      <main className="main" id="main" tabIndex={-1}>
-        {!online && (
-          <div className="banner" role="alert">
-            <Icon name="alert" />
-            <span>
-              You are offline. What you see may be out of date, and actions are paused until the connection
-              returns.
-            </span>
+      <div className="content-shell">
+        <header className="topbar">
+          <div className="environment-pill" aria-label="PayPal sandbox environment">
+            <span className="environment-dot" aria-hidden="true" />
+            PayPal sandbox
           </div>
-        )}
-        {children}
-      </main>
+          <div className="topbar-note">
+            <Icon name="shield" />
+            Human-approved · evidence-bound
+          </div>
+        </header>
+        <main className="main" id="main" tabIndex={-1}>
+          {!online && (
+            <div className="banner" role="alert">
+              <Icon name="alert" />
+              <span>
+                You are offline. What you see may be out of date, and actions are paused until the connection
+                returns.
+              </span>
+            </div>
+          )}
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
