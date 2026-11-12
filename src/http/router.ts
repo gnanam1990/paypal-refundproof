@@ -8,6 +8,8 @@ import { appendAudit } from '../services/audit';
 import { caseAuditTrail, createCase, getCaseForActor, listCases } from '../services/cases';
 import { admitEvidence, listEvidence } from '../services/evidence';
 import { reserveHit } from '../services/rate-limit';
+import { fetchCaptureSnapshot, listSnapshots } from '../services/captures';
+import { authorRevision, generateProposal, listCitations, listInvocations } from '../services/proposals';
 import { listRevisions } from '../services/revisions';
 import type { ApiContext } from './context';
 import { errorResponse, json } from './respond';
@@ -242,7 +244,49 @@ route('GET', '/api/cases/:caseId', async ({ ctx, actor, params }) => {
     listEvidence(ctx.pool, actor, kase.id),
     listRevisions(ctx.pool, actor, kase.id),
   ]);
-  return json(200, { case: kase, evidence, revisions: revisions.map(({ content: _c, ...r }) => r) });
+  const [snapshots, invocations, citations] = await Promise.all([
+    listSnapshots(ctx.pool, actor, kase.id),
+    listInvocations(ctx.pool, actor, kase.id),
+    listCitations(ctx.pool, actor, kase.id),
+  ]);
+  return json(200, {
+    case: kase,
+    evidence,
+    revisions: revisions.map(({ content: _c, ...r }) => r),
+    snapshots,
+    invocations,
+    citations,
+    capabilities: {
+      model: ctx.model ? { provider: ctx.model.provider, model: ctx.model.model } : null,
+      captureSource: ctx.captures?.label ?? null,
+    },
+  });
+});
+
+const proposalDeps = (ctx: ApiContext) => ({
+  pool: ctx.pool,
+  model: ctx.model ?? null,
+  policyVersion: ctx.config.policyVersion ?? 'policy-v1',
+  modelDeadlineMs: ctx.config.modelDeadlineMs ?? 90_000,
+});
+
+route('POST', '/api/cases/:caseId/captures', async ({ ctx, actor, params, body }) =>
+  json(201, {
+    snapshot: await fetchCaptureSnapshot(ctx.pool, ctx.captures ?? null, actor, params.caseId!, body),
+  }),
+);
+
+route('POST', '/api/cases/:caseId/proposals', async ({ ctx, actor, params, body }) => {
+  const r = await generateProposal(proposalDeps(ctx), actor, params.caseId!, body);
+  return json(r.revision ? 201 : 200, {
+    invocation: r.invocation,
+    revision: r.revision ? (({ content: _c, ...x }) => x)(r.revision) : null,
+  });
+});
+
+route('POST', '/api/cases/:caseId/revisions', async ({ ctx, actor, params, body }) => {
+  const { content: _c, ...revision } = await authorRevision(proposalDeps(ctx), actor, params.caseId!, body);
+  return json(201, { revision });
 });
 
 route('POST', '/api/cases/:caseId/evidence', async ({ ctx, actor, params, body }) => {

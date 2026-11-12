@@ -25,6 +25,32 @@ export default tseslint.config(
     },
   },
   {
+    // The proposal model boundary cannot reach anything that approves, schedules or executes refunds.
+    files: ['src/ai/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '**/db/**',
+                '**/queue/**',
+                '**/worker/**',
+                '**/paypal/**',
+                '**/services/**',
+                '**/http/**',
+                'pg',
+              ],
+              message:
+                'src/ai may not touch persistence, approvals, the outbox, the worker or the PayPal adapter.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['scripts/**', 'test/**'],
     rules: { 'no-console': 'off' },
   },

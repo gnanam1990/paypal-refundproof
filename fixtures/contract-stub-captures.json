@@ -1,0 +1,34 @@
+[
+  {
+    "captureId": "STUB-CAPTURE-0001",
+    "status": "COMPLETED",
+    "currency": "USD",
+    "value": "84.00",
+    "orderId": "STUB-ORDER-0001",
+    "payeeMerchantId": "STUBMERCHANT01"
+  },
+  {
+    "captureId": "STUB-CAPTURE-0002",
+    "status": "COMPLETED",
+    "currency": "EUR",
+    "value": "129.90",
+    "orderId": "STUB-ORDER-0002",
+    "payeeMerchantId": "STUBMERCHANT01"
+  },
+  {
+    "captureId": "STUB-CAPTURE-0003",
+    "status": "REFUNDED",
+    "currency": "USD",
+    "value": "20.00",
+    "orderId": "STUB-ORDER-0003",
+    "payeeMerchantId": "STUBMERCHANT01"
+  },
+  {
+    "captureId": "STUB-CAPTURE-0004",
+    "status": "COMPLETED",
+    "currency": "JPY",
+    "value": "4800",
+    "orderId": "STUB-ORDER-0004",
+    "payeeMerchantId": "STUBMERCHANT01"
+  }
+]
