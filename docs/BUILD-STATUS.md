@@ -39,7 +39,7 @@ The UI recorded `ready → sending → refund confirmed`, preserved the provider
 | --- | --- | --- |
 | PayPal REST sandbox | **PASS — real provider call** | Capture read, refund creation, durable provider evidence, and confirmed reconciliation exercised through the normal UI |
 | PayPal live | **INTENTIONALLY UNSUPPORTED** | The adapter refuses non-sandbox PayPal configuration |
-| Proposal provider | **PASS — local fixture for recorded run** | Deterministic provider is clearly labelled; the Anthropic adapter is implemented but no external-model call is claimed for the recording |
+| Proposal provider | **PASS — real local Ollama call** | `qwen3:4b` produced an exact `84.00 USD` proposal from redacted evidence; `3/3` citations verified and the revision had zero correction reasons |
 | PostgreSQL + worker | **PASS — local runtime** | Migrations, seeded role-separated accounts, transactional outbox, worker dispatch, and durable operation state exercised |
 | Hosted deployment | **NOT RUN** | Rules permit complete setup instructions; a serverless-only deployment would not honestly run the PostgreSQL worker architecture |
 
@@ -47,9 +47,9 @@ The UI recorded `ready → sending → refund confirmed`, preserved the provider
 
 - The outbound jsonb key-order defect found during the first real provider rehearsal is fixed by PR #12. Stored and
   expected outbound snapshots are compared with canonical JSON, with a focused regression test.
-- The full local verification passed on the submission-doc branch: 197 unit tests, 160 integration tests, 4
+- The full local verification passed on the local-AI branch: 200 unit tests, 160 integration tests, 4
   restart-recovery tests, 2 real `next start` served tests, production build, formatting, lint, TypeScript, secret scan
-  (0 findings in 218 files), build-pack verification, and dependency audit (no known vulnerabilities).
+  (0 findings in 223 files), build-pack verification, and dependency audit (no known vulnerabilities).
 - The served-process tests now explicitly disable providers instead of inheriting an operator's `.env.local`; this
   preserves the production rule that refuses the labelled local fixture while keeping the HTTP-boundary test isolated.
 - Hosted GitHub Actions remain **CI_BLOCKED** because the account-level Actions job never starts after a billing/spend
@@ -57,13 +57,26 @@ The UI recorded `ready → sending → refund confirmed`, preserved the provider
 - GitGuardian's existing `scripts/seed.ts` alert is a false positive on a runtime `randomBytes` development password;
   it is not dismissed or hidden.
 
+## Real local AI evidence
+
+| Field | Value |
+| --- | --- |
+| Case | `case_xy7qs6a65j8be6vgev8g667517` |
+| Capture | `6PF37073XL906532F`, real PayPal sandbox, `COMPLETED` |
+| Invocation | `inv_erj8bqer1ryzxgvm9vxqr3vma3` |
+| Provider / served model | `ollama` / `qwen3:4b` |
+| Prompt contract | `refundproof-proposal/v2` with exact request-specific schema constraints |
+| Result | `SUCCEEDED`; exact `84.00 USD`; `DUPLICATE_CHARGE`; `3/3` citations; no correction reasons |
+| Revision | `rev_ffbz6j9rmyk62eg859t0t8cbsk` |
+| Boundary | Ready to request independent approval; no AI approval or execution |
+
 ## Submission artifacts
 
 | Artifact | Status |
 | --- | --- |
 | Modern product UI | COMPLETE and merged |
 | Real PayPal sandbox proof screenshot | COMPLETE |
-| 52.6-second 1080p subtitles-only demo | COMPLETE and visually reviewed |
+| 64.4-second 1080p subtitles-only demo | COMPLETE and visually reviewed; real Ollama proof plus real PayPal sandbox result; SHA-256 `4c8a19de21d33ba372aaf84991eb87fb5ced52380f68788784fd68bb41551495` |
 | Public-ready README and MIT license | PREPARED |
 | Public GitHub visibility | PENDING final publication confirmation |
 | Public YouTube URL | PENDING upload/publication confirmation |

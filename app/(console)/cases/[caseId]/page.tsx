@@ -503,7 +503,13 @@ export default function CaseWorkspace() {
                   >
                     {busy === 'draft'
                       ? 'Drafting…'
-                      : `Draft with ${data.capabilities.model.provider === 'local-fixture' ? 'the local fixture model' : 'Claude'}`}
+                      : `Draft with ${
+                          data.capabilities.model.provider === 'local-fixture'
+                            ? 'the local fixture model'
+                            : data.capabilities.model.provider === 'ollama'
+                              ? `local ${data.capabilities.model.model}`
+                              : 'Claude'
+                        }`}
                   </button>
                 ) : (
                   <span className="small">

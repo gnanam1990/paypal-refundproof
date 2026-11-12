@@ -72,11 +72,33 @@ the exact capture before a person can request approval. AI never approves or exe
 Three provider modes are explicit:
 
 - `anthropic`: calls the Anthropic SDK when the operator supplies its server-side credential.
-- `local-fixture`: a labelled deterministic development provider used for the recorded sandbox journey.
+- `ollama`: calls a real local model over an unauthenticated loopback-only endpoint. The verified submission run used
+  `qwen3:4b`.
+- `local-fixture`: a labelled deterministic development provider for repeatable tests and offline demonstrations.
 - `none`: disables model drafting and keeps the manual proposal path available.
 
-The recorded submission journey did **not** claim an external model call; it used the labelled local fixture while the
-real PayPal sandbox integration, approval, durable execution, and reconciliation paths were live.
+The local provider receives a native closed JSON Schema with request-specific capture and evidence constraints. Its
+answer still passes the same independent verifier as a hosted model; grammar-constrained output is never treated as
+authorization.
+
+### Verified local AI run
+
+On 12 November 2026, RefundProof called `qwen3:4b` through Ollama against a fresh real PayPal sandbox capture. The
+model produced an exact `84.00 USD` duplicate-charge proposal, all three required citations matched admitted evidence
+character for character, and the revision had no correction reasons. It stopped at “Ready to ask an approver”; AI did
+not approve or execute the refund.
+
+| Evidence         | Verified value                                            |
+| ---------------- | --------------------------------------------------------- |
+| Case             | `case_xy7qs6a65j8be6vgev8g667517`                         |
+| Capture          | `6PF37073XL906532F` (`COMPLETED`)                         |
+| Model invocation | `inv_erj8bqer1ryzxgvm9vxqr3vma3`                          |
+| Provider / model | `ollama` / `qwen3:4b`                                     |
+| Proposal         | exact `84.00 USD`, `DUPLICATE_CHARGE`                     |
+| Citation result  | `3/3` exact evidence matches                              |
+| Revision         | `rev_ffbz6j9rmyk62eg859t0t8cbsk`, zero correction reasons |
+
+![Real local Ollama proposal with verified citations](docs/assets/refundproof-ai-citations.png)
 
 ## Architecture
 
@@ -133,6 +155,24 @@ PAYPAL_CLIENT_SECRET=<sandbox-client-secret>
 ```
 
 Live PayPal is intentionally refused. Never commit provider credentials.
+
+### Enable real local AI with Ollama
+
+Install Ollama separately, pull a compatible model, and keep its default loopback service running:
+
+```bash
+ollama pull qwen3:4b
+```
+
+Then set:
+
+```dotenv
+REFUNDPROOF_MODEL_PROVIDER=ollama
+REFUNDPROOF_MODEL=qwen3:4b
+REFUNDPROOF_OLLAMA_ORIGIN=http://127.0.0.1:11434
+```
+
+RefundProof refuses remote or credential-bearing Ollama origins.
 
 ## Verification
 

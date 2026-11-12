@@ -15,11 +15,12 @@ const Env = z.object({
     .default(8 * 3_600_000),
   LOGIN_RATE_LIMIT: z.coerce.number().int().positive().default(5),
   NODE_ENV: z.string().default('development'),
-  /** Proposal model. 'none' = BLOCKED_CREDENTIAL; 'local-fixture' is a labelled deterministic dev model. */
-  REFUNDPROOF_MODEL_PROVIDER: z.enum(['none', 'anthropic', 'local-fixture']).default('none'),
+  /** Proposal model. 'none' = disabled; 'ollama' = real loopback model; local-fixture is deterministic dev-only. */
+  REFUNDPROOF_MODEL_PROVIDER: z.enum(['none', 'anthropic', 'ollama', 'local-fixture']).default('none'),
   REFUNDPROOF_MODEL: z.string().min(1).max(100).default('claude-opus-5-5'),
   REFUNDPROOF_MODEL_EFFORT: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).default('high'),
   REFUNDPROOF_MODEL_DEADLINE_MS: z.coerce.number().int().min(1_000).max(300_000).default(90_000),
+  REFUNDPROOF_OLLAMA_ORIGIN: z.string().url().default('http://127.0.0.1:11434'),
   /** Capture lookups. 'none' = BLOCKED_CREDENTIAL; 'contract-stub' serves labelled fixtures (never production). */
   REFUNDPROOF_CAPTURE_SOURCE: z.enum(['none', 'contract-stub', 'paypal-sandbox']).default('none'),
   REFUNDPROOF_POLICY_VERSION: z.string().min(1).max(64).default('policy-v1'),

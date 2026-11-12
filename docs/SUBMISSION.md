@@ -44,9 +44,11 @@ content digests, derived bound IDs, and explicit state machines. The PayPal adap
 `api-m.sandbox.paypal.com` and uses PayPal's request-idempotency header. Customer evidence is encrypted at rest and
 redacted before model input.
 
-The AI proposal boundary has Anthropic and labelled local-fixture adapters. Model output is never trusted directly:
-money precision, reason codes, citations, source digests, capture identity, and policy bounds are verified before a
-person can approve it. The recorded journey used the labelled local fixture; it does not claim an external model call.
+The AI proposal boundary has Anthropic, real local Ollama, and labelled local-fixture adapters. Model output is never
+trusted directly: money precision, reason codes, citations, source digests, capture identity, and policy bounds are
+verified before a person can approve it. A verified submission run called `qwen3:4b` through Ollama against a fresh
+real PayPal sandbox capture: the model produced an exact `84.00 USD` proposal, all `3/3` required citations matched
+the evidence, and the revision had zero correction reasons. AI stopped before approval and execution.
 
 ## Challenges
 
@@ -56,9 +58,15 @@ the worker safely cancelled before calling PayPal. We reproduced the bug with a 
 canonical JSON comparison, restarted the worker, and then completed the real PayPal sandbox refund through the normal
 UI with one provider attempt.
 
+The local-model rehearsal found a second integration issue: the Anthropic SDK's output-schema helper represents some
+Zod enum and const constraints as descriptions, which Ollama does not enforce as a grammar. We kept the verifier
+strict, generated a native Zod JSON Schema for Ollama, bound the exact capture ID and admitted evidence labels into
+that schema, and added regression tests. Previously malformed model output remains durably recorded as rejected.
+
 ## Accomplishments
 
 - Real PayPal sandbox capture read and completed refund, not a mocked central payment path.
+- Real `qwen3:4b` local-model call with `3/3` exact citations and an approval-ready revision.
 - Exact approval-to-operation binding with role separation.
 - Durable unknown-outcome state and reconciliation rather than blind retries.
 - Encrypted original evidence, redacted model input, and provider-safe public artifacts.
@@ -87,6 +95,17 @@ learned that a real sandbox rehearsal catches storage and process-lifecycle prob
 | PayPal refund | `2MU02051VC628743S` |
 | Result | HTTP `201`, `COMPLETED` |
 | Attempts | `1` |
+
+## Local AI integration proof
+
+| Field | Value |
+| --- | --- |
+| Case | `case_xy7qs6a65j8be6vgev8g667517` |
+| PayPal capture | `6PF37073XL906532F` (`COMPLETED`) |
+| Invocation | `inv_erj8bqer1ryzxgvm9vxqr3vma3` |
+| Provider / model | `ollama` / `qwen3:4b` |
+| Result | `SUCCEEDED`; exact `84.00 USD`; `3/3` citations; zero correction reasons |
+| Safety boundary | Ready for a separate approver; not approved or executed by AI |
 
 ## Public links
 
