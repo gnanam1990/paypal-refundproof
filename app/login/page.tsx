@@ -4,6 +4,21 @@ import { useState } from 'react';
 import { api, setCsrf } from '../ui/api';
 import { ErrorSummary } from '../ui/components';
 
+/**
+ * Where to go after signing in: only a path on this origin. The value is resolved by the URL parser (so
+ * backslashes, protocol-relative and absolute URLs are normalised first) and rejected unless it stays here.
+ */
+function safeNext(next: string | null): string {
+  if (!next || next.includes('\\') || [...next].some((ch) => ch.charCodeAt(0) < 0x20)) return '/cases';
+  try {
+    const u = new URL(next, window.location.origin);
+    if (u.origin !== window.location.origin || u.pathname.startsWith('/login')) return '/cases';
+    return `${u.pathname}${u.search}${u.hash}`;
+  } catch {
+    return '/cases';
+  }
+}
+
 export default function LoginPage() {
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
@@ -28,10 +43,7 @@ export default function LoginPage() {
                 password: String(f.get('password') ?? ''),
               });
               setCsrf(r.csrfToken);
-              const next = new URLSearchParams(window.location.search).get('next');
-              window.location.assign(
-                next && next.startsWith('/') && !next.startsWith('//') ? next : '/cases',
-              );
+              window.location.assign(safeNext(new URLSearchParams(window.location.search).get('next')));
             } catch (err) {
               setError(err);
             } finally {
