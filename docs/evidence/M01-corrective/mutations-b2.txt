@@ -1,0 +1,9 @@
+# Blocker 2 mutants
+KILLED  B2-a no fence in lease predicate :: Tests  7 failed | 8 passed (15) :: test/integration/lease-fencing.test.ts > Blocker 2 — reproduction: a same-owner stale claim is fenced > stale completeJob after a same-owner reclaim throws LeaseLostError
+KILLED  B2-b expired lease still usable :: Tests  1 failed | 14 passed (15) :: test/integration/lease-fencing.test.ts > Blocker 2 — an expired lease cannot be acted on even before anyone reclaims it > complete, renew, fail and reschedule all refuse an expired lease
+KILLED  B2-c claim does not bump fence :: Tests  9 failed | 6 passed (15) :: test/integration/lease-fencing.test.ts > Blocker 2 — reproduction: a same-owner stale claim is fenced > stale completeJob after a same-owner reclaim throws LeaseLostError
+KILLED  B2-d retry ack ignores action :: Tests  1 failed | 14 passed (15) :: test/integration/lease-fencing.test.ts > Blocker 2 — response loss and retry > a retried completeJob by the same claim is acknowledged; a later failJob is refused
+SURVIVED B2-e retry ack ignores fence :: Tests  15 passed (15)
+KILLED  B2-f selftest effect before fenced completion :: Tests  3 failed | 12 passed (15) :: test/integration/lease-fencing.test.ts > Blocker 2 — lease-bound effects > stale and live handlers racing on one job produce exactly one effect
+# B2-e rerun after extending the cross-claim retry test (first run: SURVIVED)
+KILLED  B2-e retry ack ignores fence :: Tests  1 failed | 14 passed (15) :: test/integration/lease-fencing.test.ts > Blocker 2 — response loss and retry > a retry after another claim took over is refused

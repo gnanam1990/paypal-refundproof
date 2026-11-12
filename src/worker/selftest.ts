@@ -1,5 +1,5 @@
 import { withTx } from '../db/pool';
-import { LeaseLostError } from '../queue/outbox';
+import { completeJob, LeaseLostError } from '../queue/outbox';
 import { appendAudit } from '../services/audit';
 import type { JobHandler } from './runner';
 
@@ -18,19 +18,16 @@ export const selftestHandler: JobHandler = async (job, ctx) => {
   });
   if (ctx.signal.aborted) throw new LeaseLostError('lease lost during selftest');
   await withTx(ctx.pool, async (c) => {
-    const r = await c.query(
-      `update outbox_jobs set state = 'DONE', lease_expires_at = null, updated_at = now()
-        where id = $1 and lease_owner = $2 and state = 'RUNNING'`,
-      [job.id, ctx.workerId],
-    );
-    if (r.rowCount !== 1) throw new LeaseLostError('lease lost before completing selftest');
+    // Fenced completion first: it locks the job row and throws LeaseLostError unless this exact claim (id, owner,
+    // fence) still holds an unexpired lease, so the effect below commits only with the live claim's completion.
+    if ((await completeJob(c, job, ctx.workerId)) === 'ALREADY_COMPLETED') return;
     await appendAudit(c, {
       tenantId: job.tenantId,
       actorId: null,
       eventType: 'SELFTEST_DONE',
       subjectType: 'outbox_job',
       subjectId: String(job.id),
-      details: { workerId: ctx.workerId, attempt: job.attempts },
+      details: { workerId: ctx.workerId, attempt: job.attempts, fence: job.fence },
     });
   });
   return 'COMPLETED_IN_TX';

@@ -1,0 +1,274 @@
+
+ RUN  v4.1.12 <repo>
+
+ ❯ |integration| test/integration/lease-fencing.test.ts (15 tests | 13 failed) 1832ms
+     × stale completeJob after a same-owner reclaim throws LeaseLostError 134ms
+     × every claim carries a strictly larger fence token 126ms
+     × renewLease reports the lease as lost and does not extend the live lease 126ms
+     × failJob throws and leaves the live claim running 125ms
+     × rescheduleJob throws and leaves the live claim running 124ms
+     × complete, renew, fail and reschedule all refuse an expired lease 124ms
+     × stale and live handlers racing on one job produce exactly one effect 130ms
+     × a stale handler alone (after reclaim, before the live one runs) produces no effect 126ms
+     × a retried completeJob by the same claim is acknowledged; a later failJob is refused 3ms
+     × a retried failJob by the same claim is acknowledged without a second effect 2ms
+     × a retried rescheduleJob by the same claim is acknowledged without a second effect 2ms
+     × a retry after another claim took over is refused 3ms
+     × the fence token can never move backwards in the database 5ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — reproduction: a same-owner stale claim is fenced > stale completeJob after a same-owner reclaim throws LeaseLostError
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ test/integration/lease-fencing.test.ts:69:52
+     67|   it('stale completeJob after a same-owner reclaim throws LeaseLostErr…
+     68|     const { stale, live } = await staleAndLive();
+     69|     await expect(completeJob(db.pool, stale, OWNER)).rejects.toThrow(L…
+       |                                                    ^
+     70|     expect(await row(live.id)).toMatchObject({ state: 'RUNNING' });
+     71|     await completeJob(db.pool, live, OWNER);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — reproduction: a same-owner stale claim is fenced > every claim carries a strictly larger fence token
+AssertionError: expected 'undefined' to be 'number' // Object.is equality
+
+Expected: "number"
+Received: "undefined"
+
+ ❯ test/integration/lease-fencing.test.ts:77:32
+     75|   it('every claim carries a strictly larger fence token', async () => {
+     76|     const { stale, live } = await staleAndLive();
+     77|     expect(typeof stale.fence).toBe('number');
+       |                                ^
+     78|     expect(live.fence).toBeGreaterThan(stale.fence);
+     79|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — stale renew / fail / reschedule after a same-owner reclaim > renewLease reports the lease as lost and does not extend the live lease
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/integration/lease-fencing.test.ts:86:56
+     84|     const { stale, live } = await staleAndLive();
+     85|     const before = (await row(live.id)).lease_expires_at;
+     86|     expect(await renewLease(db.pool, stale, OWNER, 1)).toBe(false);
+       |                                                        ^
+     87|     expect((await row(live.id)).lease_expires_at).toEqual(before);
+     88|     await completeJob(db.pool, live, OWNER);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — stale renew / fail / reschedule after a same-owner reclaim > failJob throws and leaves the live claim running
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ test/integration/lease-fencing.test.ts:93:71
+     91|   it('failJob throws and leaves the live claim running', async () => {
+     92|     const { stale, live } = await staleAndLive();
+     93|     await expect(failJob(db.pool, stale, OWNER, new Error('stale'), 0)…
+       |                                                                       ^
+     94|     expect(await row(live.id)).toMatchObject({ state: 'RUNNING', last_…
+     95|     await completeJob(db.pool, live, OWNER);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — stale renew / fail / reschedule after a same-owner reclaim > rescheduleJob throws and leaves the live claim running
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ test/integration/lease-fencing.test.ts:100:85
+     98|   it('rescheduleJob throws and leaves the live claim running', async (…
+     99|     const { stale, live } = await staleAndLive();
+    100|     await expect(rescheduleJob(db.pool, stale, OWNER, new Date(Date.no…
+       |                                                                                     ^
+    101|       LeaseLostError,
+    102|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — an expired lease cannot be acted on even before anyone reclaims it > complete, renew, fail and reschedule all refuse an expired lease
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ test/integration/lease-fencing.test.ts:113:48
+    111|     const j = await claimOne(OWNER, 50, tag);
+    112|     await sleep(120);
+    113|     await expect(completeJob(db.pool, j, OWNER)).rejects.toThrow(Lease…
+       |                                                ^
+    114|     expect(await renewLease(db.pool, j, OWNER, 60_000)).toBe(false);
+    115|     await expect(failJob(db.pool, j, OWNER, new Error('late'), 0)).rej…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — lease-bound effects > stale and live handlers racing on one job produce exactly one effect
+AssertionError: expected 'fulfilled' to be 'rejected' // Object.is equality
+
+Expected: "rejected"
+Received: "fulfilled"
+
+ ❯ test/integration/lease-fencing.test.ts:156:24
+    154|         selftestHandler(live, ctxFor()),
+    155|       ]);
+    156|       expect(a.status).toBe('rejected');
+       |                        ^
+    157|       expect((a as PromiseRejectedResult).reason).toBeInstanceOf(Lease…
+    158|       expect(b).toMatchObject({ status: 'fulfilled', value: 'COMPLETED…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — lease-bound effects > a stale handler alone (after reclaim, before the live one runs) produces no effect
+AssertionError: promise resolved "'COMPLETED_IN_TX'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"COMPLETED_IN_TX"
+
+ ❯ test/integration/lease-fencing.test.ts:166:50
+    164|   it('a stale handler alone (after reclaim, before the live one runs) …
+    165|     const { stale, live } = await staleAndLive();
+    166|     await expect(selftestHandler(stale, ctxFor())).rejects.toThrow(Lea…
+       |                                                  ^
+    167|     expect(await effects(live.id)).toBe(0);
+    168|     await selftestHandler(live, ctxFor());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — response loss and retry > a retried completeJob by the same claim is acknowledged; a later failJob is refused
+AssertionError: promise rejected "LeaseLostError: lease on job 11 is no lon…" instead of resolving
+ ❯ test/integration/lease-fencing.test.ts:195:48
+    193|     const j = await claimOne(OWNER, 60_000, tag);
+    194|     await completeJob(db.pool, j, OWNER); // committed, but suppose th…
+    195|     await expect(completeJob(db.pool, j, OWNER)).resolves.toBe('ALREAD…
+       |                                                ^
+    196|     await expect(failJob(db.pool, j, OWNER, new Error('after done'), 0…
+    197|     expect(await row(j.id)).toMatchObject({ state: 'DONE', last_error:…
+
+Caused by: LeaseLostError: lease on job 11 is no longer held by stable-worker-name
+ ❯ completeJob src/queue/outbox.ts:123:31
+ ❯ test/integration/lease-fencing.test.ts:195:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — response loss and retry > a retried failJob by the same claim is acknowledged without a second effect
+AssertionError: promise rejected "LeaseLostError: lease on job 12 is no lon…" instead of resolving
+ ❯ test/integration/lease-fencing.test.ts:205:67
+    203|     await failJob(db.pool, j, OWNER, new Error('first'), 60_000);
+    204|     const after = await row(j.id);
+    205|     await expect(failJob(db.pool, j, OWNER, new Error('retry'), 0)).re…
+       |                                                                   ^
+    206|     expect(await row(j.id)).toEqual(after);
+    207|   });
+
+Caused by: LeaseLostError: lease on job 12 is no longer held by stable-worker-name
+ ❯ failJob src/queue/outbox.ts:137:31
+ ❯ test/integration/lease-fencing.test.ts:205:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — response loss and retry > a retried rescheduleJob by the same claim is acknowledged without a second effect
+AssertionError: promise rejected "LeaseLostError: lease on job 13 is no lon…" instead of resolving
+ ❯ test/integration/lease-fencing.test.ts:215:54
+    213|     await rescheduleJob(db.pool, j, OWNER, at);
+    214|     const after = await row(j.id);
+    215|     await expect(rescheduleJob(db.pool, j, OWNER, at)).resolves.toBeUn…
+       |                                                      ^
+    216|     expect(await row(j.id)).toEqual(after);
+    217|   });
+
+Caused by: LeaseLostError: lease on job 13 is no longer held by stable-worker-name
+ ❯ rescheduleJob src/queue/outbox.ts:147:31
+ ❯ test/integration/lease-fencing.test.ts:215:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — response loss and retry > a retry after another claim took over is refused
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ test/integration/lease-fencing.test.ts:224:67
+    222|     await failJob(db.pool, j, OWNER, new Error('first'), 0);
+    223|     const next = await claimOne(OWNER, 60_000, tag);
+    224|     await expect(failJob(db.pool, j, OWNER, new Error('retry'), 0)).re…
+       |                                                                   ^
+    225|     await expect(completeJob(db.pool, j, OWNER)).rejects.toThrow(Lease…
+    226|     await completeJob(db.pool, next, OWNER);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/13]⎯
+
+ FAIL  |integration| test/integration/lease-fencing.test.ts > Blocker 2 — response loss and retry > the fence token can never move backwards in the database
+AssertionError: expected error: column "lease_token" does not exist { …(15) } to match object { code: '23514' }
+(17 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "23514",
++ DatabaseError {
++   "code": "42703",
+  }
+
+ ❯ test/integration/lease-fencing.test.ts:234:5
+    232|     await expect(
+    233|       db.pool.query('update outbox_jobs set lease_token = lease_token …
+    234|     ).rejects.toMatchObject({ code: '23514' });
+       |     ^
+    235|     await completeJob(db.pool, j, OWNER);
+    236|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/13]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  13 failed | 2 passed (15)
+   Start at  19:58:58
+   Duration  3.23s (transform 63ms, setup 0ms, import 101ms, tests 1.83s, environment 0ms)
+
