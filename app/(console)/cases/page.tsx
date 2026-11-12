@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { api } from '../../ui/api';
-import { ErrorSummary, Icon, Skeleton, when } from '../../ui/components';
+import { ErrorSummary, Icon, Skeleton, Status, when } from '../../ui/components';
 import { useActor, useLoad } from '../../ui/session';
 
 interface CaseRow {
@@ -68,7 +68,9 @@ export default function CasesPage() {
                         </div>
                       </td>
                       <td>{c.customerRef ?? <span className="muted">—</span>}</td>
-                      <td>{c.status.toLowerCase()}</td>
+                      <td>
+                        <Status state={c.status} label={c.status.toLowerCase().replace(/_/g, ' ')} />
+                      </td>
                       <td>{when(c.createdAt)}</td>
                     </tr>
                   ))}

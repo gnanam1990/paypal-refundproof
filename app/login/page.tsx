@@ -25,48 +25,81 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   return (
     <main className="login" id="main">
-      <div className="panel">
-        <h1>RefundProof</h1>
-        <p className="muted">
-          Sign in to review evidence, approve exact refunds and follow every PayPal outcome.
-        </p>
-        <ErrorSummary error={error} />
-        <form
-          className="stack"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const f = new FormData(e.currentTarget);
-            setBusy(true);
-            setError(null);
-            try {
-              const r = await api<{ csrfToken: string }>('POST', '/api/auth/login', {
-                email: String(f.get('email') ?? ''),
-                password: String(f.get('password') ?? ''),
-              });
-              setCsrf(r.csrfToken);
-              window.location.assign(safeNext(new URLSearchParams(window.location.search).get('next')));
-            } catch (err) {
-              setError(err);
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <label>
-            Email
-            <input name="email" type="email" autoComplete="username" required />
-          </label>
-          <label>
-            Password
-            <input name="password" type="password" autoComplete="current-password" required />
-          </label>
-          <button type="submit" disabled={busy}>
-            {busy ? 'Signing in…' : 'Sign in'}
-          </button>
-        </form>
-        <p className="small muted" style={{ marginTop: '1rem' }}>
-          Seeded demo accounts are labelled “(seeded)” and exist only in development databases.
-        </p>
+      <div className="login-shell">
+        <section className="login-intro" aria-labelledby="login-product-title">
+          <div className="login-brand">
+            <span className="login-mark" aria-hidden="true">
+              RP
+            </span>
+            <span>RefundProof</span>
+          </div>
+          <div>
+            <p className="eyebrow">Refund operations console</p>
+            <h1 id="login-product-title">Every refund tied to evidence, approval and provider truth.</h1>
+            <p>
+              Turn support evidence into an exact PayPal refund, preserve independent approval and reconcile
+              ambiguous network outcomes without sending twice.
+            </p>
+          </div>
+          <ul className="login-assurances" aria-label="RefundProof safeguards">
+            <li>
+              <span>01</span> Evidence is redacted and digest-bound
+            </li>
+            <li>
+              <span>02</span> Approval binds one immutable revision
+            </li>
+            <li>
+              <span>03</span> Provider outcomes reconcile safely
+            </li>
+          </ul>
+        </section>
+        <section className="login-card" aria-labelledby="login-title">
+          <div className="login-card-head">
+            <span className="environment-pill">
+              <span className="environment-dot" />
+              Sandbox environment
+            </span>
+            <h2 id="login-title">Welcome back</h2>
+            <p>Sign in to continue to the operations console.</p>
+          </div>
+          <ErrorSummary error={error} />
+          <form
+            className="stack"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const f = new FormData(e.currentTarget);
+              setBusy(true);
+              setError(null);
+              try {
+                const r = await api<{ csrfToken: string }>('POST', '/api/auth/login', {
+                  email: String(f.get('email') ?? ''),
+                  password: String(f.get('password') ?? ''),
+                });
+                setCsrf(r.csrfToken);
+                window.location.assign(safeNext(new URLSearchParams(window.location.search).get('next')));
+              } catch (err) {
+                setError(err);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <label>
+              Work email
+              <input name="email" type="email" autoComplete="username" required />
+            </label>
+            <label>
+              Password
+              <input name="password" type="password" autoComplete="current-password" required />
+            </label>
+            <button type="submit" disabled={busy}>
+              {busy ? 'Signing in…' : 'Sign in to RefundProof'}
+            </button>
+          </form>
+          <p className="small muted login-footnote">
+            Development-only seeded identities are isolated from production accounts.
+          </p>
+        </section>
       </div>
     </main>
   );
