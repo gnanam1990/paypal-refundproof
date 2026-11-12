@@ -13,3 +13,4 @@ test-results/
 .tmp/
 next-env.d.ts
 .claude/
+*.tsbuildinfo
