@@ -1,2 +1,5 @@
 allowBuilds:
   esbuild: true
+overrides:
+  # GHSA-g3hv-75wg-m249: no typescript-estree release depends on a patched minimatch yet (latest pins ^10.2.2).
+  minimatch@>=7.0.0 <11.0.1: ^11.0.1

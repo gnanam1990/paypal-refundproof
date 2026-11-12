@@ -17,7 +17,7 @@
     "secret-scan": "node scripts/secret-scan.mjs",
     "identity:vectors": "tsx scripts/identity-vectors.ts",
     "pack:check": "node docs/build-pack/scripts/check-build-pack.mjs --root docs/build-pack",
-    "verify:m00": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm secret-scan && pnpm pack:check"
+    "verify:m00": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm secret-scan && pnpm pack:check && pnpm audit --audit-level=low"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
@@ -30,7 +30,7 @@
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.72.2",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.12"
   },
   "dependencies": {
     "zod": "^4.6.7"
