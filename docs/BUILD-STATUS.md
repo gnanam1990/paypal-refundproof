@@ -13,7 +13,8 @@ Project status: **SANDBOX PRODUCT COMPLETE; SUBMISSION PREPARED**. Repository:
 | M03 approval and policy | MERGED | #6 | `8d3bb46` |
 | M04 PayPal execution and reconciliation | MERGED | #7 | `7dfb793` |
 | M05 product console | MERGED | #8 | `86e3fc3` |
-| Submission hardening | MERGED: redirect fix, UI polish, Taste redesign, canonical jsonb outbound comparison | #9–#12 | `9f32ffa` current main before submission-doc PR |
+| Submission hardening | MERGED: redirect fix, UI polish, Taste redesign, canonical jsonb comparison, public docs and test isolation | #9–#13 | `1491f43` final submission-doc merge |
+| Real local AI proof | MERGED: loopback Ollama adapter, native structured schema, verified qwen3:4b run, public evidence | #14 | `f3c538a` final local-AI merge |
 
 ## Real provider evidence
 
