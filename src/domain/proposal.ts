@@ -1,3 +1,4 @@
+import { isBoundId } from './bound-id';
 import { domainDigest, isHexDigest } from './canonical';
 import { MoneyError, money, moneyFromJson, moneyToJson, type Money, type MoneyJson } from './money';
 
@@ -41,7 +42,13 @@ export class ProposalContentError extends Error {
   override readonly name = 'ProposalContentError';
 }
 
+/** Length in Unicode code points — the unit JSON Schema `maxLength` (and the exported schema) uses. */
+export const codePointLength = (s: string) => [...s].length;
+
 export const REVISION_DIGEST_DOMAIN = 'refundproof/proposal-revision/v1';
+
+/** Shared bound for the domain, the zod schema and the exported JSON Schema (SECURITY: bounded evidence). */
+export const MAX_EVIDENCE_DIGESTS = 64;
 
 export function amountCurrency(a: AmountSemantic) {
   return a.kind === 'EXACT' ? a.amount.currency : a.captureAmount.currency;
@@ -50,7 +57,7 @@ export function amountCurrency(a: AmountSemantic) {
 export function normalizeRevisionContent(c: RevisionContent): RevisionContent {
   const bad = (m: string) => new ProposalContentError(m);
   for (const k of ['tenantId', 'caseId', 'captureId', 'policyVersion'] as const) {
-    if (typeof c[k] !== 'string' || c[k].length === 0 || c[k].length > 128) throw bad(`invalid ${k}`);
+    if (!isBoundId(c[k])) throw bad(`invalid ${k}: 1..128 printable ASCII characters without whitespace`);
   }
   const a = c.amount;
   if (!a || (a.kind !== 'EXACT' && a.kind !== 'FULL')) throw bad('amount semantic must be EXACT or FULL');
@@ -64,8 +71,12 @@ export function normalizeRevisionContent(c: RevisionContent): RevisionContent {
   if (m.minor <= 0n) throw bad('refund amount must be positive');
   if (!(REFUND_REASON_CODES as readonly string[]).includes(c.reason?.code)) throw bad('unknown reason code');
   const note = c.reason?.noteToPayer;
-  if (note !== null && (typeof note !== 'string' || note.length === 0 || note.length > 255)) {
+  if (note !== null && (typeof note !== 'string' || note.length === 0 || codePointLength(note) > 255)) {
     throw bad('noteToPayer must be null or 1..255 characters');
+  }
+  // Bound the raw input before any dedup/sort work, so an oversized list is refused, not silently shrunk.
+  if (!Array.isArray(c.evidenceDigests) || c.evidenceDigests.length > MAX_EVIDENCE_DIGESTS) {
+    throw bad(`at most ${MAX_EVIDENCE_DIGESTS} evidence digests`);
   }
   const evidence = [...new Set(c.evidenceDigests)].sort();
   if (evidence.length === 0 || !evidence.every(isHexDigest)) throw bad('evidence digests must be sha256 hex');
