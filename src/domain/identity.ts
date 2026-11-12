@@ -1,3 +1,4 @@
+import { BOUND_ID } from './bound-id';
 import { domainDigest, isHexDigest } from './canonical';
 
 /** The approved revision an effectful operation belongs to. One approved revision ↔ one operation. */
@@ -71,8 +72,6 @@ export interface ApprovalBinding {
 }
 
 const APPROVAL_DOMAIN = 'refundproof/approval/v1';
-/** Bound identifiers are server-generated: printable ASCII, no whitespace or control characters, 1..128. */
-const BOUND_ID = /^[\x21-\x7e]{1,128}$/;
 const UTC_INSTANT = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/;
 
 /**

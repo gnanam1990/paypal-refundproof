@@ -1,3 +1,4 @@
+import { isBoundId } from './bound-id';
 import { domainDigest, isHexDigest } from './canonical';
 import { MoneyError, money, moneyFromJson, moneyToJson, type Money, type MoneyJson } from './money';
 
@@ -56,8 +57,7 @@ export function amountCurrency(a: AmountSemantic) {
 export function normalizeRevisionContent(c: RevisionContent): RevisionContent {
   const bad = (m: string) => new ProposalContentError(m);
   for (const k of ['tenantId', 'caseId', 'captureId', 'policyVersion'] as const) {
-    if (typeof c[k] !== 'string' || c[k].length === 0 || codePointLength(c[k]) > 128)
-      throw bad(`invalid ${k}`);
+    if (!isBoundId(c[k])) throw bad(`invalid ${k}: 1..128 printable ASCII characters without whitespace`);
   }
   const a = c.amount;
   if (!a || (a.kind !== 'EXACT' && a.kind !== 'FULL')) throw bad('amount semantic must be EXACT or FULL');

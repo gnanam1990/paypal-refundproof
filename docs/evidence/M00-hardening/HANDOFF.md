@@ -53,3 +53,17 @@ patterns follow ECMA-262 as JSON Schema 2020-12 specifies — Python `re`'s `$` 
 newline is a non-conforming dialect.
 
 After round 2: unit suite 10 files, **145 tests**.
+
+## Round 3 — minors from the verification of `38b74f8`
+
+Re-review verified R2-1…R2-4 **RESOLVED** (differential re-run: 307 722 values × EXACT/FULL, 0
+disagreements; mutants on approver/revision/digest binding all caught). Two minors closed here (red:
+[`red-round3.txt`](red-round3.txt), 4 failed):
+
+- **R3-1** content `tenantId` / `caseId` / `captureId` / `policyVersion` accepted values (`"ten a"`,
+  `"polé"`, emoji) that `approvalDigest` rejects — valid but unapprovable content. One shared rule
+  (`src/domain/bound-id.ts`, `^[\x21-\x7e]{1,128}$`) now governs the domain, zod and the exported schema.
+- **R3-2** reverting the `noteToPayer` code-point check failed no test → explicit 255/256-emoji test in all
+  three validators; the UTF-16 mutant now fails 1 test.
+
+After round 3: unit suite 10 files, **151 tests**.

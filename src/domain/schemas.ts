@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BOUND_ID_SOURCE } from './bound-id';
 import { CURRENCY_EXPONENTS, MAX_MINOR, MoneyError, parseMoney, type CurrencyCode } from './money';
 import { MAX_EVIDENCE_DIGESTS, REFUND_REASON_CODES } from './proposal';
 
@@ -56,7 +57,7 @@ export const AmountSemanticJson = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('FULL'), captureAmount: PositiveMoneyJson }),
 ]);
 
-const id = z.string().min(1).max(128);
+const id = z.string().regex(new RegExp(BOUND_ID_SOURCE), 'printable ASCII identifier, 1..128, no whitespace');
 
 export const RevisionContentJson = z.strictObject({
   tenantId: id,

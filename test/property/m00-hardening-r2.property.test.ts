@@ -100,3 +100,43 @@ describe('R2-4 — exported patterns stay within the portable ECMA-262 subset', 
     expect(s).not.toMatch(/\(\?[=!<]/);
   });
 });
+
+describe('R3 — content identifiers obey the same rule the approval binds; note length in code points', () => {
+  it.each(['tenantId', 'caseId', 'captureId', 'policyVersion'] as const)(
+    'rejects a whitespace or non-ASCII %s in schema, zod and domain alike',
+    (k) => {
+      for (const bad of ['ten a', 'polé', '\u{1F600}', 'x\u0000']) {
+        const doc = wire({ [k]: bad } as Partial<RevisionContentWire>);
+        expect([validate(doc), RevisionContentJson.safeParse(doc).success, domainAccepts(doc)]).toEqual([
+          false,
+          false,
+          false,
+        ]);
+      }
+    },
+  );
+
+  it('accepts content whose bound ids are exactly what approvalDigest accepts', () => {
+    const doc = wire({ tenantId: '~'.repeat(128), policyVersion: 'policy-v1' });
+    expect([validate(doc), RevisionContentJson.safeParse(doc).success, domainAccepts(doc)]).toEqual([
+      true,
+      true,
+      true,
+    ]);
+    expect(() => approvalDigest({ ...binding, tenantId: '~'.repeat(128) })).not.toThrow();
+  });
+
+  it('measures noteToPayer in code points: 255 emoji accepted, 256 rejected everywhere', () => {
+    const at = (n: number) => wire({ reason: { code: 'GOODWILL', noteToPayer: '\u{1F600}'.repeat(n) } });
+    expect([
+      validate(at(255)),
+      RevisionContentJson.safeParse(at(255)).success,
+      domainAccepts(at(255)),
+    ]).toEqual([true, true, true]);
+    expect([
+      validate(at(256)),
+      RevisionContentJson.safeParse(at(256)).success,
+      domainAccepts(at(256)),
+    ]).toEqual([false, false, false]);
+  });
+});
