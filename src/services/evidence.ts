@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { requireRole, type Actor } from '../auth/actor';
 import type { EvidenceCipher } from '../crypto/cipher';
 import { withTx, type Queryable } from '../db/pool';
-import { domainDigest, sha256Hex } from '../domain/canonical';
+import { sha256Hex } from '../domain/canonical';
 import { redact } from '../evidence/redact';
 import { newId } from '../ids';
 import { appendAudit } from './audit';
@@ -32,8 +32,8 @@ export interface PublicEvidence {
   admittedAt: string;
 }
 
-export const evidenceDigestOf = (kind: string, original: string) =>
-  domainDigest('refundproof/evidence/v1', { kind, sha256: sha256Hex(original) });
+// Evidence digests are keyed (EvidenceCipher.evidenceDigest): an unkeyed hash of the original would let anyone
+// holding the digest confirm a guessed original and so defeat redaction.
 
 const toPublic = (r: Record<string, unknown>): PublicEvidence => ({
   id: r.id as string,
@@ -64,7 +64,7 @@ export async function admitEvidence(
   const v = AdmitEvidenceInput.parse(input);
   return withTx(pool, async (c) => {
     await getCaseForActor(c, actor, caseId, true);
-    const digest = evidenceDigestOf(v.kind, v.text);
+    const digest = cipher.evidenceDigest(v.kind, v.text);
     const red = redact(v.text);
     const id = newId('ev');
     const ins = await c.query(

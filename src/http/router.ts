@@ -6,7 +6,7 @@ import { createSession, resolveSession, revokeSession, type ResolvedSession } fr
 import { appendAudit } from '../services/audit';
 import { caseAuditTrail, createCase, getCaseForActor, listCases } from '../services/cases';
 import { admitEvidence, listEvidence } from '../services/evidence';
-import { countInWindow, rateLimited, recordHit } from '../services/rate-limit';
+import { reserveHit } from '../services/rate-limit';
 import { listRevisions } from '../services/revisions';
 import type { ApiContext } from './context';
 import { errorResponse, json } from './respond';
@@ -71,11 +71,25 @@ function sessionCookie(ctx: ApiContext, token: string, maxAgeSec: number) {
 
 async function readBody(req: Request): Promise<unknown> {
   if (req.method === 'GET') return undefined;
-  const len = Number(req.headers.get('content-length') ?? 0);
-  if (len > MAX_BODY_BYTES) throw new AppError(413, 'PAYLOAD_TOO_LARGE', 'Request body too large');
-  const text = await req.text();
-  if (Buffer.byteLength(text) > MAX_BODY_BYTES)
-    throw new AppError(413, 'PAYLOAD_TOO_LARGE', 'Request body too large');
+  const tooLarge = () => new AppError(413, 'PAYLOAD_TOO_LARGE', 'Request body too large');
+  // Content-Length is only a hint: it may be absent or lie. Count bytes as they stream and stop pulling at the cap.
+  if (Number(req.headers.get('content-length') ?? 0) > MAX_BODY_BYTES) throw tooLarge();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  if (req.body) {
+    const reader = req.body.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > MAX_BODY_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        throw tooLarge();
+      }
+      chunks.push(value);
+    }
+  }
+  const text = Buffer.concat(chunks).toString('utf8');
   if (!text) return {};
   const type = req.headers.get('content-type') ?? '';
   if (type.startsWith('application/json')) {
@@ -141,13 +155,19 @@ route(
   async ({ ctx, body }) => {
     const v = LoginInput.parse(body);
     const key = `login-fail:${v.email}`;
-    if ((await countInWindow(ctx.pool, key, LOGIN_WINDOW_MS)) >= ctx.config.loginRateLimit)
-      throw rateLimited('sign-in attempts');
+    // Reserve a failure slot atomically BEFORE checking the password; give it back only on success.
+    const release = await reserveHit(
+      ctx.pool,
+      key,
+      ctx.config.loginRateLimit,
+      LOGIN_WINDOW_MS,
+      'sign-in attempts',
+    );
     const r = await ctx.pool.query('select * from actors where email = $1 and not disabled', [v.email]);
     const row = r.rows[0];
     const ok = await verifyPassword(v.password, row?.password_hash ?? null);
+    if (ok && row) await release();
     if (!row || !ok) {
-      await recordHit(ctx.pool, key);
       await appendAudit(ctx.pool, {
         tenantId: row?.tenant_id ?? null,
         actorId: row?.id ?? null,

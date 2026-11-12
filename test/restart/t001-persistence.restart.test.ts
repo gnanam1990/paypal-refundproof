@@ -67,12 +67,13 @@ describe('T-001 — accepted evidence and proposal identity survive a database c
         id: ev.id,
         digest: ev.digest,
         digestVerified: true,
-        originalSha256: sha256Hex(text),
       }),
     ]);
     expect(report.revisions).toEqual([
       expect.objectContaining({ id: rev.id, digest: rev.digest, digestVerified: true, state: 'DRAFT' }),
     ]);
     expect(r.output).not.toContain('sam@example.com');
+    // S3: the CLI must not print an unkeyed hash of the original (a plaintext-confirmation oracle).
+    expect(r.output).not.toContain(sha256Hex(text));
   });
 });

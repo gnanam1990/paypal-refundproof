@@ -40,3 +40,9 @@ T-008's reconciliation-phase restart is re-run in M04 against real refund reconc
 generation (M02), approval service (M03), PayPal execution (M04), console UI (M05): NOT_RUN.
 `approveForTest` in `test/support/fixtures.ts` is a labeled test-only shortcut until M03 supplies the
 approval service.
+
+## Security review (automated, on 44b4a19) — S1–S3
+
+Red: [`security-red.txt`](security-red.txt) (5 of 6 failed before fixes). Fixes and mutation proof in
+DR-0003. After fixes: integration 6 files / **40 tests**, restart 2 / 4 (T-001 now also asserts the CLI
+prints no unkeyed hash of the original).

@@ -1,14 +1,30 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
+import { createCipheriv, createDecipheriv, createHash, createHmac, hkdfSync, randomBytes } from 'node:crypto';
 
 /**
  * AES-256-GCM for customer evidence at rest. Layout: version(1) | iv(12) | tag(16) | ciphertext.
  * The key never leaves the server process; keyId is a non-reversible fingerprint for rotation bookkeeping.
  */
 export class EvidenceCipher {
+  private readonly macKey: Buffer;
   private constructor(
     private readonly key: Buffer,
     readonly keyId: string,
-  ) {}
+  ) {
+    // Separate HKDF-derived key for evidence digests, so the encryption key is never used as a MAC key.
+    this.macKey = Buffer.from(hkdfSync('sha256', key, 'refundproof', 'refundproof/evidence-digest/v1', 32));
+  }
+
+  /**
+   * Keyed evidence digest: HMAC-SHA256 over kind and the exact original. Unlike an unkeyed hash it cannot be
+   * used to confirm a guessed original (redaction would otherwise be defeated by guessing card numbers,
+   * names, etc.). Rotating REFUNDPROOF_DATA_KEY therefore requires re-keying stored digests.
+   */
+  evidenceDigest(kind: string, original: string): string {
+    return createHmac('sha256', this.macKey)
+      .update(`refundproof/evidence/v2\n${kind}\n`)
+      .update(original, 'utf8')
+      .digest('hex');
+  }
 
   static fromBase64Key(b64: string): EvidenceCipher {
     const key = Buffer.from(b64, 'base64');

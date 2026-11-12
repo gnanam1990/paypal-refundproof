@@ -52,3 +52,21 @@ effect is a database write complete the job in the same transaction (exactly-onc
 
 Worker processes are started as a single Node process (`node --import tsx`), never through the `tsx` CLI:
 the CLI forks a child, and T-008 showed that signalling the wrapper orphaned the real worker.
+
+## Security review findings on 44b4a19 (S1–S3), fixed before the M01 PR
+
+- **S1 rate-limit TOCTOU**: the login check counted failures, verified the password, then recorded the
+  failure, so parallel requests all passed the count. Now `reserveHit` reserves a slot under a
+  transaction-scoped advisory lock on the key *before* the password check and releases it only on success.
+  Test: 20 parallel wrong passwords → ≤ 5 password checks; lock-free mutant fails 3/3 runs.
+- **S2 unbounded body buffering**: `req.text()` buffered the whole body before the size check, and
+  `Content-Length` may be absent or false. The body is now read as a stream and the reader is cancelled
+  once 128 KiB is exceeded. Test: a lazy 80 MB stream is refused after ≤ 18 chunks, with or without a lying
+  `Content-Length`.
+- **S3 unkeyed evidence digest = plaintext oracle**: `sha256(original)` (and the CLI's `originalSha256`)
+  let anyone holding a digest confirm a guessed original, defeating redaction. Evidence digests are now
+  HMAC-SHA256 under a key HKDF-derived from `REFUNDPROOF_DATA_KEY` (separate from the encryption key);
+  the CLI verifies without printing any unkeyed hash. Consequence: rotating the data key requires
+  re-keying stored digests (not supported yet; recorded as a limitation).
+- Known limitation surfaced by the S3 test: deterministic redaction does not detect personal names. M02
+  must treat redacted text as still potentially identifying and keep the model input to declared fields.

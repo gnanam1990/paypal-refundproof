@@ -1,11 +1,10 @@
 // Operator CLI: print a case's durable, redacted evidence trail and verify every stored digest.
 //   tsx scripts/case-inspect.ts <caseId> [--verify] [--json]
 // Requires DATABASE_URL; --verify also needs REFUNDPROOF_DATA_KEY to re-derive evidence digests from the
-// encrypted originals. Originals are never printed — only their SHA-256.
+// encrypted originals. Originals and unkeyed hashes of them are never printed.
 import pg from 'pg';
 import { EvidenceCipher } from '../src/crypto/cipher';
 import { sha256Hex } from '../src/domain/canonical';
-import { evidenceDigestOf } from '../src/services/evidence';
 import { DigestMismatchError, toStoredRevision } from '../src/services/revisions';
 
 const [caseId, ...flags] = process.argv.slice(2);
@@ -60,9 +59,9 @@ try {
       };
       if (cipher) {
         const original = cipher.decrypt(e.encrypted_original).toString('utf8');
-        out.originalSha256 = sha256Hex(original);
         out.digestVerified =
-          evidenceDigestOf(e.kind, original) === e.digest && sha256Hex(e.redacted_text) === e.redacted_digest;
+          cipher.evidenceDigest(e.kind, original) === e.digest &&
+          sha256Hex(e.redacted_text) === e.redacted_digest;
         if (!out.digestVerified) failures++;
       }
       return out;

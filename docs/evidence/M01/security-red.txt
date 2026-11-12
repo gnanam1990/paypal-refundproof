@@ -1,0 +1,84 @@
+
+ RUN  v3.2.7 <repo>
+
+ ❯ |integration| test/integration/security-m01.test.ts (6 tests | 5 failed) 1564ms
+   × S1 — failed-login limit holds under concurrency > 20 parallel wrong-password attempts yield at most `limit` password checks 525ms
+     → expected 20 to be less than or equal to 5
+   ✓ S1 — failed-login limit holds under concurrency > a successful sign-in does not consume the failure budget  334ms
+   × S2 — request bodies are capped while streaming > rejects an oversized body that has no Content-Length 53ms
+     → expected 10001 to be less than or equal to 18
+   × S2 — request bodies are capped while streaming > rejects an oversized body whose Content-Length lies 34ms
+     → expected 10001 to be less than or equal to 18
+   × S3 — evidence digests are keyed, not a plaintext oracle > cannot be reproduced from a guessed original without the server key 3ms
+     → Cannot read properties of undefined (reading 'id')
+   × S3 — evidence digests are keyed, not a plaintext oracle > is stable under one key and different under another 0ms
+     → a.evidenceDigest is not a function
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| test/integration/security-m01.test.ts > S1 — failed-login limit holds under concurrency > 20 parallel wrong-password attempts yield at most `limit` password checks
+AssertionError: expected 20 to be less than or equal to 5
+ ❯ test/integration/security-m01.test.ts:32:54
+     30|     const results = await Promise.all(Array.from({ length: 20 }, () =>…
+     31|     const statuses = results.map((r) => r.status);
+     32|     expect(statuses.filter((s) => s === 401).length).toBeLessThanOrEqu…
+       |                                                      ^
+     33|     expect(statuses.filter((s) => s === 429).length).toBeGreaterThanOr…
+     34|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |integration| test/integration/security-m01.test.ts > S2 — request bodies are capped while streaming > rejects an oversized body that has no Content-Length
+AssertionError: expected 10001 to be less than or equal to 18
+ ❯ test/integration/security-m01.test.ts:73:20
+     71|     );
+     72|     expect(res.status).toBe(413);
+     73|     expect(pulled).toBeLessThanOrEqual(maxChunksBeforeRefusal);
+       |                    ^
+     74|   });
+     75| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |integration| test/integration/security-m01.test.ts > S2 — request bodies are capped while streaming > rejects an oversized body whose Content-Length lies
+AssertionError: expected 10001 to be less than or equal to 18
+ ❯ test/integration/security-m01.test.ts:86:20
+     84|     );
+     85|     expect(res.status).toBe(413);
+     86|     expect(pulled).toBeLessThanOrEqual(maxChunksBeforeRefusal);
+       |                    ^
+     87|   });
+     88| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |integration| test/integration/security-m01.test.ts > S3 — evidence digests are keyed, not a plaintext oracle > cannot be reproduced from a guessed original without the server key
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ test/integration/security-m01.test.ts:96:56
+     94|     const kase = (await c.req('POST', '/api/cases', { title: 'oracle' …
+     95|     const text = 'My card ending 4242 was charged; my name is Ada Love…
+     96|     const ev = (await c.req('POST', `/api/cases/${kase.id}/evidence`, …
+       |                                                        ^
+     97|     const unkeyed = domainDigest('refundproof/evidence/v1', { kind: 'S…
+     98|     expect(ev.digest).not.toBe(unkeyed);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |integration| test/integration/security-m01.test.ts > S3 — evidence digests are keyed, not a plaintext oracle > is stable under one key and different under another
+TypeError: a.evidenceDigest is not a function
+ ❯ test/integration/security-m01.test.ts:109:14
+    107|     const b = EvidenceCipher.fromBase64Key(key);
+    108|     const other = EvidenceCipher.fromBase64Key(randomBytes(32).toStrin…
+    109|     expect(a.evidenceDigest('SUPPORT_MESSAGE', 'hello')).toBe(b.eviden…
+       |              ^
+    110|     expect(a.evidenceDigest('SUPPORT_MESSAGE', 'hello')).not.toBe(othe…
+    111|     expect(a.evidenceDigest('SUPPORT_MESSAGE', 'hello')).not.toBe(a.ev…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 1 passed (6)
+   Start at  16:08:29
+   Duration  3.83s (transform 159ms, setup 0ms, collect 257ms, tests 1.56s, environment 0ms, prepare 71ms)
+
