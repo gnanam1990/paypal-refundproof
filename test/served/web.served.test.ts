@@ -25,7 +25,18 @@ beforeAll(async () => {
   await pool.end();
   port = await freePort();
   origin = `http://127.0.0.1:${port}`;
-  env = { DATABASE_URL: url, REFUNDPROOF_DATA_KEY: randomBytes(32).toString('base64'), APP_ORIGIN: origin };
+  // A served test must not inherit an operator's .env.local provider choices. In particular, the labelled
+  // local fixture is intentionally refused under NODE_ENV=production. Keep this HTTP-boundary test provider-free.
+  env = {
+    DATABASE_URL: url,
+    REFUNDPROOF_DATA_KEY: randomBytes(32).toString('base64'),
+    APP_ORIGIN: origin,
+    REFUNDPROOF_MODEL_PROVIDER: 'none',
+    REFUNDPROOF_CAPTURE_SOURCE: 'none',
+    PAYPAL_ENV: 'sandbox',
+    PAYPAL_CLIENT_ID: '',
+    PAYPAL_CLIENT_SECRET: '',
+  };
 });
 afterAll(() => cluster.destroy());
 
