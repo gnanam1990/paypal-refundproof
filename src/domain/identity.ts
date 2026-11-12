@@ -1,4 +1,4 @@
-import { BOUND_ID } from './bound-id';
+import { BOUND_ID, isBoundId } from './bound-id';
 import { domainDigest, isHexDigest } from './canonical';
 
 /** The approved revision an effectful operation belongs to. One approved revision ↔ one operation. */
@@ -36,7 +36,12 @@ const OPERATION_DOMAIN = 'refundproof/refund-operation/v1';
  * server-generated revision id is part of the input.
  */
 export function deriveOperationIdentity(ref: ApprovedRevisionRef): OperationIdentity {
-  if (!ref.tenantId || !ref.revisionId) throw new IdentityError('tenant and revision ids are required');
+  // Same bound-ID rule as proposal content and approvals: no identity can exist that no approval could bind.
+  if (!isBoundId(ref.tenantId) || !isBoundId(ref.revisionId)) {
+    throw new IdentityError(
+      'tenantId and revisionId must be 1..128 printable ASCII characters without whitespace',
+    );
+  }
   if (!isHexDigest(ref.revisionDigest)) throw new IdentityError('revision digest must be sha256 hex');
   const d = domainDigest(OPERATION_DOMAIN, {
     tenantId: ref.tenantId,

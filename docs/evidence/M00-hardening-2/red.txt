@@ -1,0 +1,393 @@
+
+ RUN  v3.2.7 <repo>
+
+ ❯ |unit| test/property/m00-hardening-3.property.test.ts (44 tests | 37 failed) 49ms
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects kind BOGUS (was accepted as FULL USD 99.00) — and so do Ajv and zod 10ms
+     → expected [ false, false, true ] to deeply equal [ false, false, false ]
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects missing kind — and so do Ajv and zod 2ms
+     → expected [ false, false, true ] to deeply equal [ false, false, false ]
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects kind null — and so do Ajv and zod 1ms
+     → expected [ false, false, true ] to deeply equal [ false, false, false ]
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects lowercase kind — and so do Ajv and zod 0ms
+     → expected [ false, false, true ] to deeply equal [ false, false, false ]
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects EXACT + captureAmount — and so do Ajv and zod 1ms
+     → expected [ false, false, true ] to deeply equal [ false, false, false ]
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects FULL + amount — and so do Ajv and zod 1ms
+     → expected [ false, false, true ] to deeply equal [ false, false, false ]
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects EXACT without amount — and so do Ajv and zod 1ms
+     → Cannot read properties of undefined (reading 'value')
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects FULL without captureAmount — and so do Ajv and zod 0ms
+     → Cannot read properties of undefined (reading 'value')
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects extra top-level field — and so do Ajv and zod 1ms
+     → expected [ false, false, true ] to deeply equal [ false, false, false ]
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects extra field in reason — and so do Ajv and zod 2ms
+     → expected [ false, false, true ] to deeply equal [ false, false, false ]
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects extra field in money — and so do Ajv and zod 2ms
+     → expected [ false, false, true ] to deeply equal [ false, false, false ]
+   ✓ F1 — the domain decoder enforces the complete closed wire shape > rejects missing reason.noteToPayer — and so do Ajv and zod 1ms
+   ✓ F1 — the domain decoder enforces the complete closed wire shape > rejects missing policyVersion — and so do Ajv and zod 0ms
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects amount is an array — and so do Ajv and zod 0ms
+     → Cannot read properties of undefined (reading 'value')
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects money is null — and so do Ajv and zod 0ms
+     → Cannot read properties of null (reading 'value')
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects value is a number — and so do Ajv and zod 0ms
+     → malformed amount
+   ✓ F1 — the domain decoder enforces the complete closed wire shape > rejects evidenceDigests is a string — and so do Ajv and zod 0ms
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects prototype-polluting key — and so do Ajv and zod 1ms
+     → expected [ false, false, true ] to deeply equal [ false, false, false ]
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects null document — and so do Ajv and zod 0ms
+     → Cannot read properties of null (reading 'amount')
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects array document — and so do Ajv and zod 0ms
+     → Cannot read properties of undefined (reading 'kind')
+   × F1 — the domain decoder enforces the complete closed wire shape > rejects string document — and so do Ajv and zod 0ms
+     → Cannot read properties of undefined (reading 'kind')
+   ✓ F1 — the domain decoder enforces the complete closed wire shape > accepts the valid EXACT and FULL shapes everywhere 1ms
+   × F1 — the domain decoder enforces the complete closed wire shape > agrees with Ajv and zod under random structural mutations (differential) 8ms
+     → Property failed after 1 tests
+{ seed: 1907980119, path: "0:1:1:1:1:1:1:1:1:1:0:0:0:0", endOnFailure: true }
+Counterexample: [false,[{"path":[],"op":"add","key":"x","val":[],"kind":""}]]
+Shrunk 13 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+   ✓ F1 — the in-memory normalizer has no implicit FULL default either > throws on an amount semantic that is neither EXACT nor FULL 0ms
+   ✓ F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "" 0ms
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "   " 1ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId " \t" 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "x\u0000" 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "ten a" 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "polé" 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "😀" 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "xxxxxxxxxxxxxxxxxxxxxxx 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "xxxxxxxxxxxxxxxxxxxxxxx 4ms
+     → expected function to throw an error, but it didn't
+   ✓ F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "" 0ms
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "   " 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId " \t" 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "x\u0000" 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "ten a" 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "polé" 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "😀" 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "xxxxxxxxxxxxxxxxxxxxxxx 0ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "xxxxxxxxxxxxxxxxxxxxxxx 4ms
+     → expected function to throw an error, but it didn't
+   × F2 — operation identity obeys the bound-ID contract at every entry point > proposal, approval and operation agree on every tenant id 3ms
+     → Property failed after 2 tests
+{ seed: -635251700, path: "1:1:0:0:1", endOnFailure: true }
+Counterexample: ["\u0000"]
+Shrunk 4 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+   × F2 — operation identity obeys the bound-ID contract at every entry point > approval and operation agree on every revision id 1ms
+     → Property failed after 1 tests
+{ seed: -968422781, path: "0", endOnFailure: true }
+Counterexample: ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"]
+Shrunk 0 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 37 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects kind BOGUS (was accepted as FULL USD 99.00) — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects missing kind — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects kind null — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects lowercase kind — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects EXACT + captureAmount — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects FULL + amount — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects extra top-level field — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects extra field in reason — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects extra field in money — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects prototype-polluting key — and so do Ajv and zod
+AssertionError: expected [ false, false, true ] to deeply equal [ false, false, false ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    false,[22m
+[2m    false,[22m
+[32m-   false,[39m
+[31m+   true,[39m
+[2m  ][22m
+
+ ❯ test/property/m00-hardening-3.property.test.ts:62:25
+     60| 
+     61|   it.each(cases)('rejects %s — and so do Ajv and zod', (_label, w) => {
+     62|     expect(verdicts(w)).toEqual([false, false, false]);
+       |                         ^
+     63|   });
+     64| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects EXACT without amount — and so do Ajv and zod
+TypeError: Cannot read properties of undefined (reading 'value')
+ ❯ moneyFromJson src/domain/money.ts:100:16
+     98| export const moneyToJson = (m: Money): MoneyJson => ({ currency: m.cur…
+     99| export const moneyFromJson = (j: { currency: string; value: string }):…
+    100|   parseMoney(j.value, j.currency);
+       |                ^
+    101| 
+ ❯ decodeRevisionContent src/domain/proposal.ts:128:36
+ ❯ domainAccepts test/property/m00-hardening-3.property.test.ts:26:5
+ ❯ verdicts test/property/m00-hardening-3.property.test.ts:33:90
+ ❯ test/property/m00-hardening-3.property.test.ts:62:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects FULL without captureAmount — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects amount is an array — and so do Ajv and zod
+TypeError: Cannot read properties of undefined (reading 'value')
+ ❯ moneyFromJson src/domain/money.ts:100:16
+     98| export const moneyToJson = (m: Money): MoneyJson => ({ currency: m.cur…
+     99| export const moneyFromJson = (j: { currency: string; value: string }):…
+    100|   parseMoney(j.value, j.currency);
+       |                ^
+    101| 
+ ❯ decodeRevisionContent src/domain/proposal.ts:129:42
+ ❯ domainAccepts test/property/m00-hardening-3.property.test.ts:26:5
+ ❯ verdicts test/property/m00-hardening-3.property.test.ts:33:90
+ ❯ test/property/m00-hardening-3.property.test.ts:62:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects money is null — and so do Ajv and zod
+TypeError: Cannot read properties of null (reading 'value')
+ ❯ moneyFromJson src/domain/money.ts:100:16
+     98| export const moneyToJson = (m: Money): MoneyJson => ({ currency: m.cur…
+     99| export const moneyFromJson = (j: { currency: string; value: string }):…
+    100|   parseMoney(j.value, j.currency);
+       |                ^
+    101| 
+ ❯ decodeRevisionContent src/domain/proposal.ts:128:36
+ ❯ domainAccepts test/property/m00-hardening-3.property.test.ts:26:5
+ ❯ verdicts test/property/m00-hardening-3.property.test.ts:33:90
+ ❯ test/property/m00-hardening-3.property.test.ts:62:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects value is a number — and so do Ajv and zod
+MoneyError: malformed amount
+ ❯ parseMoney src/domain/money.ts:67:61
+     65| export function parseMoney(value: string, currency: string): Money {
+     66|   if (!isCurrencyCode(currency)) throw new MoneyError(`unsupported cur…
+     67|   if (typeof value !== 'string' || value.length > 32) throw new MoneyE…
+       |                                                             ^
+     68|   const m = DECIMAL.exec(value);
+     69|   if (!m) throw new MoneyError('malformed amount');
+ ❯ moneyFromJson src/domain/money.ts:100:3
+ ❯ decodeRevisionContent src/domain/proposal.ts:128:36
+ ❯ domainAccepts test/property/m00-hardening-3.property.test.ts:26:5
+ ❯ verdicts test/property/m00-hardening-3.property.test.ts:33:90
+ ❯ test/property/m00-hardening-3.property.test.ts:62:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects null document — and so do Ajv and zod
+TypeError: Cannot read properties of null (reading 'amount')
+ ❯ decodeRevisionContent src/domain/proposal.ts:127:9
+    125|     ...w,
+    126|     amount:
+    127|       w.amount.kind === 'EXACT'
+       |         ^
+    128|         ? { kind: 'EXACT', amount: moneyFromJson(w.amount.amount) }
+    129|         : { kind: 'FULL', captureAmount: moneyFromJson(w.amount.captur…
+ ❯ domainAccepts test/property/m00-hardening-3.property.test.ts:26:5
+ ❯ verdicts test/property/m00-hardening-3.property.test.ts:33:90
+ ❯ test/property/m00-hardening-3.property.test.ts:62:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects array document — and so do Ajv and zod
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > rejects string document — and so do Ajv and zod
+TypeError: Cannot read properties of undefined (reading 'kind')
+ ❯ decodeRevisionContent src/domain/proposal.ts:127:16
+    125|     ...w,
+    126|     amount:
+    127|       w.amount.kind === 'EXACT'
+       |                ^
+    128|         ? { kind: 'EXACT', amount: moneyFromJson(w.amount.amount) }
+    129|         : { kind: 'FULL', captureAmount: moneyFromJson(w.amount.captur…
+ ❯ domainAccepts test/property/m00-hardening-3.property.test.ts:26:5
+ ❯ verdicts test/property/m00-hardening-3.property.test.ts:33:90
+ ❯ test/property/m00-hardening-3.property.test.ts:62:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F1 — the domain decoder enforces the complete closed wire shape > agrees with Ajv and zod under random structural mutations (differential)
+Error: Property failed after 1 tests
+{ seed: 1907980119, path: "0:1:1:1:1:1:1:1:1:1:0:0:0:0", endOnFailure: true }
+Counterexample: [false,[{"path":[],"op":"add","key":"x","val":[],"kind":""}]]
+Shrunk 13 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+ ❯ buildError node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2469:16
+ ❯ throwIfFailed node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2476:8
+ ❯ reportRunDetails node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2492:14
+ ❯ Module.assert node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2662:7
+ ❯ test/property/m00-hardening-3.property.test.ts:81:8
+     79|       kind: fc.oneof(fc.constantFrom('EXACT', 'FULL', 'BOGUS', '', 'ex…
+     80|     });
+     81|     fc.assert(
+       |        ^
+     82|       fc.property(fc.boolean(), fc.array(mutation, { minLength: 1, max…
+     83|         const doc = valid() as Record<string, any>;
+
+Caused by: AssertionError: expected true to be false // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+ ❯ test/property/m00-hardening-3.property.test.ts:96:19
+ ❯ Property.predicate node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:1355:99
+ ❯ Property.run node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:1324:24
+ ❯ propertyExecution node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2549:23
+ ❯ run node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2639:91
+ ❯ runIt node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2542:15
+ ❯ check node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2655:14
+ ❯ Module.assert node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2660:14
+ ❯ test/property/m00-hardening-3.property.test.ts:81:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "   "
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId " \t"
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "x\u0000"
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "ten a"
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "polé"
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "😀"
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "xxxxxxxxxxxxxxxxxxxxxxx
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects tenantId "xxxxxxxxxxxxxxxxxxxxxxx
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/property/m00-hardening-3.property.test.ts:124:105
+    122| 
+    123|   it.each(bad.map((b) => [JSON.stringify(b).slice(0, 24), b]))('reject…
+    124|     expect(() => deriveOperationIdentity({ tenantId: t, revisionId: 'r…
+       |                                                                                                         ^
+    125|   });
+    126| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "   "
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId " \t"
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "x\u0000"
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "ten a"
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "polé"
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "😀"
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "xxxxxxxxxxxxxxxxxxxxxxx
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > rejects revisionId "xxxxxxxxxxxxxxxxxxxxxxx
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/property/m00-hardening-3.property.test.ts:128:105
+    126| 
+    127|   it.each(bad.map((b) => [JSON.stringify(b).slice(0, 24), b]))('reject…
+    128|     expect(() => deriveOperationIdentity({ tenantId: 'ten_a', revision…
+       |                                                                                                         ^
+    129|   });
+    130| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > proposal, approval and operation agree on every tenant id
+Error: Property failed after 2 tests
+{ seed: -635251700, path: "1:1:0:0:1", endOnFailure: true }
+Counterexample: ["\u0000"]
+Shrunk 4 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+ ❯ buildError node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2469:16
+ ❯ throwIfFailed node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2476:8
+ ❯ reportRunDetails node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2492:14
+ ❯ Module.assert node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2662:7
+ ❯ test/property/m00-hardening-3.property.test.ts:156:8
+    154| 
+    155|   it('proposal, approval and operation agree on every tenant id', () =…
+    156|     fc.assert(
+       |        ^
+    157|       fc.property(arbId, (t) => {
+    158|         const p = accepts(() => normalizeRevisionContent(content(t)));
+
+Caused by: AssertionError: expected [ false, true ] to deeply equal [ false, false ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    false,[22m
+[32m-   false,[39m
+[31m+   true,[39m
+[2m  ][22m
+
+ ❯ test/property/m00-hardening-3.property.test.ts:161:24
+ ❯ Property.predicate node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:1355:99
+ ❯ Property.run node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:1324:24
+ ❯ propertyExecution node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2549:23
+ ❯ run node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2639:91
+ ❯ runIt node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2542:15
+ ❯ check node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2655:14
+ ❯ Module.assert node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2660:14
+ ❯ test/property/m00-hardening-3.property.test.ts:156:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/37]⎯
+
+ FAIL  |unit| test/property/m00-hardening-3.property.test.ts > F2 — operation identity obeys the bound-ID contract at every entry point > approval and operation agree on every revision id
+Error: Property failed after 1 tests
+{ seed: -968422781, path: "0", endOnFailure: true }
+Counterexample: ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"]
+Shrunk 0 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+ ❯ buildError node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2469:16
+ ❯ throwIfFailed node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2476:8
+ ❯ reportRunDetails node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2492:14
+ ❯ Module.assert node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2662:7
+ ❯ test/property/m00-hardening-3.property.test.ts:168:8
+    166| 
+    167|   it('approval and operation agree on every revision id', () => {
+    168|     fc.assert(
+       |        ^
+    169|       fc.property(arbId, (r) => {
+    170|         const a = accepts(() => approvalDigest({ ...binding, tenantId:…
+
+Caused by: AssertionError: expected true to be false // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+ ❯ test/property/m00-hardening-3.property.test.ts:172:19
+ ❯ Property.predicate node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:1355:99
+ ❯ Property.run node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:1324:24
+ ❯ propertyExecution node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2549:23
+ ❯ run node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2639:91
+ ❯ runIt node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2542:15
+ ❯ check node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2655:14
+ ❯ Module.assert node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2660:14
+ ❯ test/property/m00-hardening-3.property.test.ts:168:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/37]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  37 failed | 7 passed (44)
+   Start at  16:31:55
+   Duration  2.58s (transform 243ms, setup 0ms, collect 1.21s, tests 49ms, environment 0ms, prepare 402ms)
+

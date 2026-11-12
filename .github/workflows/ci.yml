@@ -24,4 +24,6 @@ jobs:
       - name: determinism (second run)
         run: pnpm test:unit
       - run: pnpm secret-scan
+      - name: dependency audit (dev + prod)
+        run: pnpm audit --audit-level=low
       - run: pnpm pack:check

@@ -60,8 +60,18 @@ export function normalizeRevisionContent(c: RevisionContent): RevisionContent {
     if (!isBoundId(c[k])) throw bad(`invalid ${k}: 1..128 printable ASCII characters without whitespace`);
   }
   const a = c.amount;
-  if (!a || (a.kind !== 'EXACT' && a.kind !== 'FULL')) throw bad('amount semantic must be EXACT or FULL');
-  const raw = a.kind === 'EXACT' ? a.amount : a.captureAmount;
+  let raw: Money | undefined;
+  const kind = (a as { kind?: unknown } | undefined)?.kind;
+  switch (kind) {
+    case 'EXACT':
+      raw = (a as Extract<AmountSemantic, { kind: 'EXACT' }>).amount;
+      break;
+    case 'FULL':
+      raw = (a as Extract<AmountSemantic, { kind: 'FULL' }>).captureAmount;
+      break;
+    default:
+      throw bad('amount semantic must be exactly EXACT or FULL');
+  }
   let m: Money;
   try {
     m = money(raw?.currency, raw?.minor); // re-validate structurally built Money (currency table, bounds)
@@ -84,10 +94,7 @@ export function normalizeRevisionContent(c: RevisionContent): RevisionContent {
     tenantId: c.tenantId,
     caseId: c.caseId,
     captureId: c.captureId,
-    amount:
-      a.kind === 'EXACT'
-        ? { kind: 'EXACT', amount: a.amount }
-        : { kind: 'FULL', captureAmount: a.captureAmount },
+    amount: kind === 'EXACT' ? { kind: 'EXACT', amount: m } : { kind: 'FULL', captureAmount: m },
     reason: { code: c.reason.code, noteToPayer: note },
     evidenceDigests: evidence,
     policyVersion: c.policyVersion,
@@ -104,29 +111,118 @@ export interface RevisionContentWire {
   policyVersion: string;
 }
 
+function encodeAmount(a: AmountSemantic): RevisionContentWire['amount'] {
+  switch (a.kind) {
+    case 'EXACT':
+      return { kind: 'EXACT', amount: moneyToJson(a.amount) };
+    case 'FULL':
+      return { kind: 'FULL', captureAmount: moneyToJson(a.captureAmount) };
+    default: {
+      const unreachable: never = a;
+      throw new ProposalContentError(`unknown amount semantic ${JSON.stringify(unreachable)}`);
+    }
+  }
+}
+
 export function encodeRevisionContent(c: RevisionContent): RevisionContentWire {
   const n = normalizeRevisionContent(c);
   return {
     tenantId: n.tenantId,
     caseId: n.caseId,
     captureId: n.captureId,
-    amount:
-      n.amount.kind === 'EXACT'
-        ? { kind: 'EXACT', amount: moneyToJson(n.amount.amount) }
-        : { kind: 'FULL', captureAmount: moneyToJson(n.amount.captureAmount) },
+    amount: encodeAmount(n.amount),
     reason: { code: n.reason.code, noteToPayer: n.reason.noteToPayer },
     evidenceDigests: [...n.evidenceDigests],
     policyVersion: n.policyVersion,
   };
 }
 
-export function decodeRevisionContent(w: RevisionContentWire): RevisionContent {
+// ------------------------------------------------------------------------------------------ closed wire decoding
+
+type WireObject = Record<string, unknown>;
+const TOP_LEVEL_KEYS = [
+  'tenantId',
+  'caseId',
+  'captureId',
+  'amount',
+  'reason',
+  'evidenceDigests',
+  'policyVersion',
+];
+
+function isPlainObject(v: unknown): v is WireObject {
+  if (v === null || typeof v !== 'object' || Array.isArray(v)) return false;
+  const proto = Object.getPrototypeOf(v);
+  return proto === Object.prototype || proto === null;
+}
+
+/** Exactly these keys, all present, nothing else (own keys only, so a JSON `__proto__` key is "unknown"). */
+function closedObject(v: unknown, keys: readonly string[], where: string): WireObject {
+  if (!isPlainObject(v)) throw new ProposalContentError(`${where} must be an object`);
+  for (const k of Object.keys(v)) {
+    if (!keys.includes(k)) throw new ProposalContentError(`${where} has unknown field "${k.slice(0, 32)}"`);
+  }
+  for (const k of keys) {
+    if (!Object.prototype.hasOwnProperty.call(v, k))
+      throw new ProposalContentError(`${where} is missing ${k}`);
+  }
+  return v;
+}
+
+function decodeMoneyWire(v: unknown, where: string): Money {
+  const o = closedObject(v, ['currency', 'value'], where);
+  if (typeof o.currency !== 'string' || typeof o.value !== 'string') {
+    throw new ProposalContentError(`${where} currency and value must be strings`);
+  }
+  try {
+    return moneyFromJson({ currency: o.currency, value: o.value });
+  } catch (e) {
+    throw new ProposalContentError(`${where}: ${e instanceof MoneyError ? e.message : 'invalid money'}`);
+  }
+}
+
+function decodeAmountWire(v: unknown): AmountSemantic {
+  if (!isPlainObject(v)) throw new ProposalContentError('amount must be an object');
+  const kind = v.kind;
+  switch (kind) {
+    case 'EXACT':
+      closedObject(v, ['kind', 'amount'], 'amount');
+      return { kind: 'EXACT', amount: decodeMoneyWire(v.amount, 'amount.amount') };
+    case 'FULL':
+      closedObject(v, ['kind', 'captureAmount'], 'amount');
+      return { kind: 'FULL', captureAmount: decodeMoneyWire(v.captureAmount, 'amount.captureAmount') };
+    default:
+      // No implicit default: an unknown or missing kind is never a FULL refund.
+      throw new ProposalContentError('amount.kind must be exactly "EXACT" or "FULL"');
+  }
+}
+
+/**
+ * Decodes untrusted wire content (stored JSON, API input) and enforces the same closed shape as the exported
+ * JSON Schema: exact key sets at every level, typed leaves, exhaustive amount kinds. It never strips or
+ * coerces — anything the schema would reject is a ProposalContentError.
+ */
+export function decodeRevisionContent(w: unknown): RevisionContent {
+  const o = closedObject(w, TOP_LEVEL_KEYS, 'revision content');
+  const reason = closedObject(o.reason, ['code', 'noteToPayer'], 'reason');
+  if (typeof reason.code !== 'string') throw new ProposalContentError('reason.code must be a string');
+  if (reason.noteToPayer !== null && typeof reason.noteToPayer !== 'string') {
+    throw new ProposalContentError('reason.noteToPayer must be a string or null');
+  }
+  for (const k of ['tenantId', 'caseId', 'captureId', 'policyVersion'] as const) {
+    if (typeof o[k] !== 'string') throw new ProposalContentError(`${k} must be a string`);
+  }
+  if (!Array.isArray(o.evidenceDigests) || !o.evidenceDigests.every((d) => typeof d === 'string')) {
+    throw new ProposalContentError('evidenceDigests must be an array of strings');
+  }
   return normalizeRevisionContent({
-    ...w,
-    amount:
-      w.amount.kind === 'EXACT'
-        ? { kind: 'EXACT', amount: moneyFromJson(w.amount.amount) }
-        : { kind: 'FULL', captureAmount: moneyFromJson(w.amount.captureAmount) },
+    tenantId: o.tenantId as string,
+    caseId: o.caseId as string,
+    captureId: o.captureId as string,
+    amount: decodeAmountWire(o.amount),
+    reason: { code: reason.code as RefundReasonCode, noteToPayer: reason.noteToPayer as string | null },
+    evidenceDigests: o.evidenceDigests as string[],
+    policyVersion: o.policyVersion as string,
   });
 }
 
