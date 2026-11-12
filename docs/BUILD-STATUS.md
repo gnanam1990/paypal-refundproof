@@ -7,7 +7,7 @@ Project status: **IN_PROGRESS**. Repository: `gnanam1990/paypal-refundproof` (pr
 | Module | Status | PRs | Merge SHA |
 | --- | --- | --- | --- |
 | M00 contracts | MERGED (two post-merge corrective PRs, both merged) | #1 (head `4ed3926`), #2 corrective (head `442ec3f`), #3 corrective (head `d0b033e`) | `b7d24aa`, `af73ca0`, `ea11710` |
-| M01 persistence-auth | IN_REVIEW — corrective round for three reproduced integrity blockers; not merged | #4 | — |
+| M01 persistence-auth | MERGED (reviewed head `c6994de`) | #4 | `72dd748` |
 | M02 ai-proposal | NOT_RUN | — | — |
 | M03 approval-policy | NOT_RUN | — | — |
 | M04 paypal-reconciliation | NOT_RUN | — | — |
@@ -25,8 +25,9 @@ Project status: **IN_PROGRESS**. Repository: `gnanam1990/paypal-refundproof` (pr
   - `0002`: a dispatching attempt could be rewritten as NOT_SENT;
   - `0003`: a same-owner stale lease was not fenced;
   - `0004`: cross-tenant or unbound evidence could confirm an operation.
-  The GitGuardian `scripts/seed.ts` finding remains an open hosted gate. It is a runtime-generated-password false
-  positive, is not resolved in the dashboard, and history is not rewritten.
+  PR #4 passed independent exact-head review at `c6994de` and was merged as `72dd748`. Hosted Actions stayed
+  CI_BLOCKED (zero steps). GitGuardian finding 39989919 (`scripts/seed.ts`) is the known false positive on a
+  runtime `randomBytes` demo password; it was not dismissed and history was not rewritten.
 
 ## CI
 
