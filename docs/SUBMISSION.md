@@ -1,7 +1,7 @@
 # RefundProof submission pack
 
-This file contains public copy and an evidence checklist for the PayPal AI Hackathon 2026 submission. It is a draft
-until the repository, video, and Devpost entry are visibly public and the final URLs are recorded.
+This file contains the public copy and evidence checklist used for the submitted PayPal AI Hackathon 2026 entry.
+The repository, demo video, and Devpost project were visibly public and verified on 2026-11-12.
 
 ## Project name
 
@@ -109,8 +109,9 @@ learned that a real sandbox rehearsal catches storage and process-lifecycle prob
 
 ## Public links
 
-- Repository: `PENDING_PUBLICATION`
-- Demo video: `PENDING_PUBLICATION`
+- Repository: https://github.com/gnanam1990/paypal-refundproof
+- Demo video: https://youtu.be/3EH1eNgIfio
+- Devpost submission: https://devpost.com/software/refundproof
 - Hosted app: not claimed; complete local setup is in the README and `docs/SETUP.md`.
 
 ## Final submission checklist
@@ -122,6 +123,6 @@ learned that a real sandbox rehearsal catches storage and process-lifecycle prob
 - [x] Demo video under three minutes, 1080p, no audio, subtitles included
 - [x] Complete source and setup instructions
 - [x] Open-source license prepared
-- [ ] Repository visibly public
-- [ ] Public YouTube video visibly playable
-- [ ] Devpost fields populated and final rules agreement submitted
+- [x] Repository visibly public
+- [x] Public YouTube video visibly playable
+- [x] Devpost fields populated and final rules agreement submitted
