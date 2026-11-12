@@ -85,3 +85,38 @@ served suite now asserts the framework boundary through the real `next start` se
 headers on a page and an API response, no `X-Powered-By`, cookie attributes, cross-origin and missing-CSRF
 mutations refused (403) and an oversized body refused (413). Planting either `poweredByHeader: true` or a
 missing `X-Frame-Options` in `next.config.mjs` fails it.
+
+## Security finding L1 on 02d31af: sign-in lockout of a known account
+
+The failed-login limiter was keyed on the account only. Anyone who knew an email could keep that account
+locked out by sending 5 wrong passwords every 15 minutes (the Origin check does not stop non-browser
+clients). Reproduced: after 6 attacker attempts the owner's correct password got 429
+(`docs/evidence/M01/security-l1-red.txt`).
+
+Rejected fixes: keying on client IP (with no trusted proxy configured, Next preserves a client-supplied
+`X-Forwarded-For`, so the key is attacker-chosen); letting a correct password bypass the limit (this restores
+the unbounded password-guessing oracle that S1 closed).
+
+Fix: device cookies (OWASP pattern). A successful sign-in sets `rp_device = v1.<accountId>.<nonce>.<mac>`.
+The MAC is HMAC-SHA256 under an HKDF subkey (`refundproof/device-cookie/v1`) of `REFUNDPROOF_DATA_KEY`, and it
+binds the cookie to one account. The cookie is HttpOnly, SameSite=Lax, `Path=/api/auth`, 180 days, and
+Secure on https. A failed sign-in that presents a valid cookie for the account counts in that device's own
+bucket (`login-fail:device:<account>:<nonce>`). Every other attempt shares the account's untrusted bucket.
+Both buckets keep S1's reserve-before-check limit.
+
+Tests (`test/integration/security-m01-l1.test.ts`, 6):
+- The owner signs in from a known device while the untrusted bucket is exhausted.
+- A device bucket is bounded on its own, with no password oracle once it is exhausted.
+- 20 parallel guesses on one device cookie are bounded.
+- Tampered, transplanted, nonce-altered and malformed cookies fall back to the exhausted bucket.
+- Cookie attributes are as above, and the cookie is not a session credential.
+- Logout keeps the device cookie.
+
+Mutation proof (`security-l1-mutations.txt`): skipping the MAC check or the account binding each fails the
+forgery test.
+
+Residual risk, accepted and documented: during an active attack the owner cannot sign in from a new device
+or browser until the window passes (an admin can still act). Device cookies are stateless and cannot be
+revoked individually. That is acceptable because they never authenticate anything; rotating the data key
+invalidates all of them, which only moves every client back to the untrusted bucket.
+

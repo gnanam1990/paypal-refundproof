@@ -11,13 +11,17 @@ const SECURITY_HEADERS = {
   'x-content-type-options': 'nosniff',
 };
 
-export function json(status: number, body: unknown, headers: Record<string, string> = {}): Response {
+export function json(
+  status: number,
+  body: unknown,
+  headers: Record<string, string> = {},
+  setCookies: readonly string[] = [],
+): Response {
+  const h = new Headers({ ...SECURITY_HEADERS, ...headers });
+  for (const c of setCookies) h.append('set-cookie', c);
   return new Response(
     JSON.stringify(body, (_k, v) => (typeof v === 'bigint' ? v.toString() : v)),
-    {
-      status,
-      headers: { ...SECURITY_HEADERS, ...headers },
-    },
+    { status, headers: h },
   );
 }
 

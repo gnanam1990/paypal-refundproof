@@ -6,12 +6,22 @@ import { createCipheriv, createDecipheriv, createHash, createHmac, hkdfSync, ran
  */
 export class EvidenceCipher {
   private readonly macKey: Buffer;
+  private readonly deviceKey: Buffer;
   private constructor(
     private readonly key: Buffer,
     readonly keyId: string,
   ) {
-    // Separate HKDF-derived key for evidence digests, so the encryption key is never used as a MAC key.
+    // Separate HKDF-derived keys per purpose, so the encryption key is never used as a MAC key and a MAC for
+    // one purpose can never be replayed as another.
     this.macKey = Buffer.from(hkdfSync('sha256', key, 'refundproof', 'refundproof/evidence-digest/v1', 32));
+    this.deviceKey = Buffer.from(hkdfSync('sha256', key, 'refundproof', 'refundproof/device-cookie/v1', 32));
+  }
+
+  /** MAC binding a sign-in device cookie to one account (see src/auth/device.ts). */
+  deviceMac(accountId: string, nonce: string): string {
+    return createHmac('sha256', this.deviceKey)
+      .update(`refundproof/device/v1\n${accountId}\n${nonce}`)
+      .digest('hex');
   }
 
   /**

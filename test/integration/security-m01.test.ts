@@ -40,8 +40,10 @@ describe('S1 — failed-login limit holds under concurrency', () => {
     for (let i = 0; i < 4; i++)
       expect((await c.login(w.operator.email, 'wrong wrong wrong')).status).toBe(401);
     expect((await c.login(w.operator.email, TEST_PASSWORD)).status).toBe(200);
-    expect((await c.login(w.operator.email, 'wrong wrong wrong')).status).toBe(401); // 5th failure still allowed
-    expect((await c.login(w.operator.email, 'wrong wrong wrong')).status).toBe(429);
+    // `c` now holds a device cookie (L1), so probe the account's untrusted bucket from a fresh client.
+    const untrusted = new TestClient(ctx);
+    expect((await untrusted.login(w.operator.email, 'wrong wrong wrong')).status).toBe(401); // 5th still allowed
+    expect((await untrusted.login(w.operator.email, 'wrong wrong wrong')).status).toBe(429);
   });
 });
 

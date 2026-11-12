@@ -61,7 +61,7 @@ Current counts on the merged branch:
 | Suite | Files | Tests |
 | --- | --- | --- |
 | unit + property (M00 kernel incl. corrective #2) | 11 | 195 |
-| integration (real PostgreSQL 17) | 6 | 40 |
+| integration (real PostgreSQL 17) | 7 | 46 |
 | restart (T-001, T-008 queue) | 2 | 4 |
 | served (`next build` + `next start`, Next 16.4.6) | 1 | 2 |
 
@@ -71,3 +71,17 @@ fails it (`expected 'Next.js' to be null`), and so does removing `X-Frame-Option
 
 PayPal REST sandbox, PayPal/Venmo live, and the model API stay **BLOCKED**: no credentials, and no live
 calls are authorized or made.
+
+## Security finding L1 (automated push review of `02d31af`): sign-in lockout
+
+The account-only login limiter let anyone who knew an email lock that account out. Red evidence:
+[`security-l1-red.txt`](security-l1-red.txt). The new suite failed 6 of 6, and a direct reproduction shows
+the owner's correct password getting `429 to be 200`. Fixed with signed, account-bound device cookies that
+get their own failure bucket; design, rejected alternatives and residual risk are in DR-0003. Mutation
+proof: [`security-l1-mutations.txt`](security-l1-mutations.txt).
+
+The existing S1 test "a successful sign-in does not consume the failure budget" now probes the untrusted
+bucket from a fresh client. After a success, the original client holds a device cookie and its failures
+go to its own bucket, which is the intended change. Both the 5th-failure-allowed and the 6th-refused
+assertions are unchanged.
+

@@ -1,0 +1,133 @@
+
+ RUN  v4.1.12 /Users/kratos/Documents/Codex/2026-11-12/paypal-refundproof
+
+ ❯ |integration| test/integration/security-m01-l1.test.ts (6 tests | 6 failed) 761ms
+     × the owner signs in from a trusted device while the untrusted bucket is exhausted 83ms
+     × a trusted device still has its own bound: no password oracle once it is exhausted 59ms
+     × parallel guesses on one device cookie are bounded like S1 56ms
+     × tampered, transplanted and malformed cookies fall back to the exhausted untrusted bucket 2ms
+     × is HttpOnly, SameSite=Lax, scoped to /api/auth, long-lived, and not a session credential 53ms
+     × logout keeps the device cookie (it is not a credential) 54ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| test/integration/security-m01-l1.test.ts > L1 — a remote attacker cannot lock an account out of its known devices > the owner signs in from a trusted device while the untrusted bucket is exhausted
+AssertionError: a successful sign-in issues rp_device: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ trustedDevice test/integration/security-m01-l1.test.ts:33:59
+     31|   expect((await c.login(email, TEST_PASSWORD)).status).toBe(200);
+     32|   const device = c.jar.get('rp_device');
+     33|   expect(device, 'a successful sign-in issues rp_device').toBeTruthy();
+       |                                                           ^
+     34|   c.cookie = `rp_device=${device}`;
+     35|   c.csrf = '';
+ ❯ test/integration/security-m01-l1.test.ts:48:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |integration| test/integration/security-m01-l1.test.ts > L1 — a remote attacker cannot lock an account out of its known devices > a trusted device still has its own bound: no password oracle once it is exhausted
+AssertionError: a successful sign-in issues rp_device: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ trustedDevice test/integration/security-m01-l1.test.ts:33:59
+     31|   expect((await c.login(email, TEST_PASSWORD)).status).toBe(200);
+     32|   const device = c.jar.get('rp_device');
+     33|   expect(device, 'a successful sign-in issues rp_device').toBeTruthy();
+       |                                                           ^
+     34|   c.cookie = `rp_device=${device}`;
+     35|   c.csrf = '';
+ ❯ test/integration/security-m01-l1.test.ts:56:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |integration| test/integration/security-m01-l1.test.ts > L1 — a remote attacker cannot lock an account out of its known devices > parallel guesses on one device cookie are bounded like S1
+AssertionError: a successful sign-in issues rp_device: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ trustedDevice test/integration/security-m01-l1.test.ts:33:59
+     31|   expect((await c.login(email, TEST_PASSWORD)).status).toBe(200);
+     32|   const device = c.jar.get('rp_device');
+     33|   expect(device, 'a successful sign-in issues rp_device').toBeTruthy();
+       |                                                           ^
+     34|   c.cookie = `rp_device=${device}`;
+     35|   c.csrf = '';
+ ❯ test/integration/security-m01-l1.test.ts:66:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |integration| test/integration/security-m01-l1.test.ts > L1 — device cookies cannot be forged or transplanted > tampered, transplanted and malformed cookies fall back to the exhausted untrusted bucket
+AssertionError: expected [ '' ] to have a length of 4 but got 1
+
+- Expected
++ Received
+
+- 4
++ 1
+
+ ❯ test/integration/security-m01-l1.test.ts:86:34
+     84|     const victim = w.approver.email;
+     85|     const ownDevice = approverDevice;
+     86|     expect(ownDevice.split('.')).toHaveLength(4);
+       |                                  ^
+     87|     const otherAccount = (await trustedDevice(w.operator.email)).jar.g…
+     88|     const parts = ownDevice.split('.');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |integration| test/integration/security-m01-l1.test.ts > L1 — device cookies cannot be forged or transplanted > is HttpOnly, SameSite=Lax, scoped to /api/auth, long-lived, and not a session credential
+TypeError: Cannot read properties of undefined (reading 'split')
+ ❯ test/integration/security-m01-l1.test.ts:110:23
+    108|     expect(fresh.status).toBe(200);
+    109|     const set = fresh.headers.getSetCookie().find((x) => x.startsWith(…
+    110|     const attrs = set.split(';').map((a) => a.trim().toLowerCase());
+       |                       ^
+    111|     expect(attrs).toContain('httponly');
+    112|     expect(attrs).toContain('samesite=lax');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |integration| test/integration/security-m01-l1.test.ts > L1 — device cookies cannot be forged or transplanted > logout keeps the device cookie (it is not a credential)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/integration/security-m01-l1.test.ts:131:36
+    129|     expect(out.status).toBe(200);
+    130|     expect(out.headers.getSetCookie().some((x) => x.startsWith('rp_dev…
+    131|     expect(c.jar.has('rp_device')).toBe(true);
+       |                                    ^
+    132|   });
+    133| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  17:56:22
+   Duration  2.60s (transform 97ms, setup 0ms, import 178ms, tests 761ms, environment 0ms)
+
+     × the owner signs in from a trusted device while the untrusted bucket is exhausted 402ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected 429 to be 200 // Object.is equality
+      Tests  1 failed | 5 skipped (6)

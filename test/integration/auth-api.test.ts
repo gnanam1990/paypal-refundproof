@@ -23,7 +23,7 @@ describe('authentication', () => {
     const c = new TestClient(ctx);
     const r = await c.login(w.operator.email, TEST_PASSWORD);
     expect(r.status).toBe(200);
-    const cookie = r.headers.get('set-cookie')!;
+    const cookie = r.headers.getSetCookie().find((x) => x.startsWith('rp_session='))!;
     expect(cookie).toMatch(/HttpOnly/);
     expect(cookie).toMatch(/SameSite=Lax/);
     expect(cookie).toMatch(/Secure/);

@@ -5,8 +5,19 @@ export const ORIGIN = 'http://refundproof.test';
 
 /** Drives the real API router with web-standard Requests, carrying the session cookie like a browser. */
 export class TestClient {
-  cookie = '';
+  /** Cookie jar keyed by name; a Set-Cookie with an empty value (or Max-Age=0) removes the entry. */
+  readonly jar = new Map<string, string>();
   csrf = '';
+  get cookie(): string {
+    return [...this.jar].map(([k, v]) => `${k}=${v}`).join('; ');
+  }
+  set cookie(header: string) {
+    this.jar.clear();
+    for (const part of header.split(';')) {
+      const [k, ...v] = part.trim().split('=');
+      if (k) this.jar.set(k, v.join('='));
+    }
+  }
   readonly handle: (r: Request) => Promise<Response>;
   constructor(ctx: ApiContext) {
     this.handle = createApi(ctx);
@@ -24,8 +35,14 @@ export class TestClient {
         body: body === undefined ? undefined : JSON.stringify(body),
       }),
     );
-    const set = res.headers.get('set-cookie');
-    if (set) this.cookie = set.split(';')[0]!.endsWith('=') ? '' : set.split(';')[0]!;
+    for (const set of res.headers.getSetCookie()) {
+      const [pair, ...attrs] = set.split(';');
+      const [k, ...v] = pair!.trim().split('=');
+      const value = v.join('=');
+      const expired = attrs.some((a) => a.trim().toLowerCase() === 'max-age=0');
+      if (!value || expired) this.jar.delete(k!);
+      else this.jar.set(k!, value);
+    }
     const text = await res.text();
     let json: unknown = undefined;
     try {

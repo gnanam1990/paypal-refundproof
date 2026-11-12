@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import { AppError, forbidden, unauthenticated, type Actor } from '../auth/actor';
+import { DEVICE_COOKIE, DEVICE_COOKIE_MAX_AGE_SEC, mintDevice, verifyDevice } from '../auth/device';
 import { verifyPassword } from '../auth/password';
 import { createSession, resolveSession, revokeSession, type ResolvedSession } from '../auth/sessions';
 import { appendAudit } from '../services/audit';
@@ -67,6 +68,10 @@ const safeEqual = (a: string, b: string) => {
 
 function sessionCookie(ctx: ApiContext, token: string, maxAgeSec: number) {
   return `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSec}${ctx.config.secureCookies ? '; Secure' : ''}`;
+}
+
+function deviceCookie(ctx: ApiContext, value: string) {
+  return `${DEVICE_COOKIE}=${value}; Path=/api/auth; HttpOnly; SameSite=Lax; Max-Age=${DEVICE_COOKIE_MAX_AGE_SEC}${ctx.config.secureCookies ? '; Secure' : ''}`;
 }
 
 async function readBody(req: Request): Promise<unknown> {
@@ -152,9 +157,14 @@ const LOGIN_WINDOW_MS = 15 * 60_000;
 route(
   'POST',
   '/api/auth/login',
-  async ({ ctx, body }) => {
+  async ({ ctx, body, req }) => {
     const v = LoginInput.parse(body);
-    const key = `login-fail:${v.email}`;
+    const r = await ctx.pool.query('select * from actors where email = $1 and not disabled', [v.email]);
+    const row = r.rows[0];
+    // A valid device cookie for this account gets its own failure bucket; everyone else shares the account's
+    // untrusted bucket, so a remote guesser can exhaust only that one (L1). See src/auth/device.ts.
+    const device = verifyDevice(ctx.cipher, readCookie(req, DEVICE_COOKIE), row?.id);
+    const key = device ? `login-fail:device:${device.accountId}:${device.nonce}` : `login-fail:${v.email}`;
     // Reserve a failure slot atomically BEFORE checking the password; give it back only on success.
     const release = await reserveHit(
       ctx.pool,
@@ -163,8 +173,6 @@ route(
       LOGIN_WINDOW_MS,
       'sign-in attempts',
     );
-    const r = await ctx.pool.query('select * from actors where email = $1 and not disabled', [v.email]);
-    const row = r.rows[0];
     const ok = await verifyPassword(v.password, row?.password_hash ?? null);
     if (ok && row) await release();
     if (!row || !ok) {
@@ -201,7 +209,11 @@ route(
         csrfToken: s.csrfToken,
         expiresAt: s.expiresAt.toISOString(),
       },
-      { 'set-cookie': sessionCookie(ctx, s.token, Math.floor(ctx.config.sessionTtlMs / 1000)) },
+      {},
+      [
+        sessionCookie(ctx, s.token, Math.floor(ctx.config.sessionTtlMs / 1000)),
+        deviceCookie(ctx, (device ?? mintDevice(ctx.cipher, row.id)).value),
+      ],
     );
   },
   { auth: false },
@@ -209,7 +221,7 @@ route(
 
 route('POST', '/api/auth/logout', async ({ ctx, session }) => {
   await revokeSession(ctx.pool, session!.tokenHash);
-  return json(200, { ok: true }, { 'set-cookie': sessionCookie(ctx, '', 0) });
+  return json(200, { ok: true }, {}, [sessionCookie(ctx, '', 0)]);
 });
 
 route('GET', '/api/session', async ({ session }) =>

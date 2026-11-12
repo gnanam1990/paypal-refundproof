@@ -50,9 +50,12 @@ async function call(
     status: res.status,
     headers: res.headers,
     json: (await res.json()) as any,
-    setCookie: res.headers.get('set-cookie'),
+    setCookies: res.headers.getSetCookie(),
   };
 }
+
+const cookieNamed = (set: string[], name: string) => set.find((c) => c.startsWith(`${name}=`))!;
+const attrsOf = (c: string) => c.split(';').map((a) => a.trim().toLowerCase());
 
 const SECURITY_HEADERS: Record<string, string> = {
   'x-content-type-options': 'nosniff',
@@ -75,7 +78,7 @@ describe('served API (next start) and web-process restart', () => {
         body: { email: w.operator.email, password: TEST_PASSWORD },
       });
       expect(login.status).toBe(200);
-      const cookie = login.setCookie!.split(';')[0]!;
+      const cookie = cookieNamed(login.setCookies, 'rp_session').split(';')[0]!;
       const csrf = login.json.csrfToken as string;
       const kase = await call('POST', '/api/cases', { cookie, csrf, body: { title: 'Served case' } });
       expect(kase.status).toBe(201);
@@ -115,13 +118,14 @@ describe('served API (next start) and web-process restart', () => {
         body: { email: w.operator.email, password: TEST_PASSWORD },
       });
       expect(login.status).toBe(200);
-      const attrs = login.setCookie!.split(';').map((a) => a.trim().toLowerCase());
-      expect(attrs[0]).toMatch(/^rp_session=[^;]+$/);
-      expect(attrs).toContain('httponly');
-      expect(attrs).toContain('samesite=lax');
-      expect(attrs).toContain('path=/');
-      expect(attrs).not.toContain('secure'); // http origin; Secure is asserted for https in integration
-      const cookie = login.setCookie!.split(';')[0]!;
+      expect(login.setCookies.map((c) => c.split('=')[0]).sort()).toEqual(['rp_device', 'rp_session']);
+      const session = attrsOf(cookieNamed(login.setCookies, 'rp_session'));
+      expect(session[0]).toMatch(/^rp_session=[^;]+$/);
+      expect(session).toEqual(expect.arrayContaining(['httponly', 'samesite=lax', 'path=/']));
+      expect(session).not.toContain('secure'); // http origin; Secure is asserted for https in integration
+      const device = attrsOf(cookieNamed(login.setCookies, 'rp_device'));
+      expect(device).toEqual(expect.arrayContaining(['httponly', 'samesite=lax', 'path=/api/auth']));
+      const cookie = cookieNamed(login.setCookies, 'rp_session').split(';')[0]!;
       const csrf = login.json.csrfToken as string;
 
       const cross = await call('POST', '/api/cases', {
