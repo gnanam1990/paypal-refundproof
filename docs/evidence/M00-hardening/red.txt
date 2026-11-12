@@ -1,0 +1,223 @@
+
+ RUN  v3.2.7 <repo>
+
+ ❯ |unit| test/property/m00-hardening.property.test.ts (37 tests | 25 failed) 76ms
+   ✓ H1 — the exported JSON Schema enforces what the domain enforces > accepts valid content 1ms
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects USD 1.001 (beyond exponent) 4ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects JPY 1.5 (zero-exponent currency) 1ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects HUF 1.0 1ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects USD 0.00 (zero) 1ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects USD 0 0ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects JPY 0 0ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects USD over MAX_MINOR 0ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects JPY over MAX_MINOR 0ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects FULL capture amount 0.00 0ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects FULL JPY 1.5 0ms
+     → expected true to be false // Object.is equality
+   ✓ H1 — the exported JSON Schema enforces what the domain enforces > rejects leading zero 0ms
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects non-hex evidence digest 0ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects short evidence digest 1ms
+     → expected true to be false // Object.is equality
+   × H1 — the exported JSON Schema enforces what the domain enforces > rejects uppercase evidence digest 0ms
+     → expected true to be false // Object.is equality
+   ✓ H1 — the exported JSON Schema enforces what the domain enforces > rejects 65 evidence digests 0ms
+   ✓ H1 — the exported JSON Schema enforces what the domain enforces > rejects empty evidence 0ms
+   × H1 — the exported JSON Schema enforces what the domain enforces > agrees with the domain parser on arbitrary amount strings (differential) 6ms
+     → Property failed after 3 tests
+{ seed: 1343438564, path: "2:0", endOnFailure: true }
+Counterexample: ["AUD","0"]
+Shrunk 1 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+   ✓ H1 — the exported JSON Schema enforces what the domain enforces > accepts every positive in-range money value the domain can produce 3ms
+   × H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-02-30T00:00:00Z 1ms
+     → expected function to throw an error, but it didn't
+   × H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-02-29T00:00:00Z 0ms
+     → expected function to throw an error, but it didn't
+   × H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-04-31T12:00:00Z 0ms
+     → expected function to throw an error, but it didn't
+   ✓ H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-13-01T00:00:00Z 0ms
+   ✓ H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-00-10T00:00:00Z 0ms
+   × H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-11-12T24:00:00Z 0ms
+     → expected function to throw an error, but it didn't
+   ✓ H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-11-12T23:60:00Z 0ms
+   ✓ H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-11-12T23:59:60Z 0ms
+   ✓ H2 — approval digest rejects impossible instants and empty identifiers > accepts real instants, including a leap day 0ms
+   × H2 — approval digest rejects impossible instants and empty identifiers > rejects an empty tenantId 0ms
+     → expected function to throw an error, but it didn't
+   × H2 — approval digest rejects impossible instants and empty identifiers > rejects an empty revisionId 0ms
+     → expected function to throw an error, but it didn't
+   × H2 — approval digest rejects impossible instants and empty identifiers > rejects an empty approverId 0ms
+     → expected function to throw an error, but it didn't
+   × H2 — approval digest rejects impossible instants and empty identifiers > rejects an empty policyVersion 0ms
+     → expected function to throw an error, but it didn't
+   ✓ H3 — T-006 full chain: changed intent → new revision, new approval, new operation > changing amount yields three fresh, unlinkable identities 31ms
+   ✓ H3 — T-006 full chain: changed intent → new revision, new approval, new operation > changing capture yields three fresh, unlinkable identities 21ms
+   × H4 — evidence digest count is bounded before dedup/sort > exposes the shared bound 0ms
+     → expected undefined to be 64 // Object.is equality
+   × H4 — evidence digest count is bounded before dedup/sort > accepts exactly 64 and rejects 65 distinct digests 1ms
+     → expected function to throw an error, but it didn't
+   × H4 — evidence digest count is bounded before dedup/sort > rejects an oversized input even when duplicates would dedup below the bound 0ms
+     → expected function to throw an error, but it didn't
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 25 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects USD 1.001 (beyond exponent)
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects JPY 1.5 (zero-exponent currency)
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects HUF 1.0
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects USD 0.00 (zero)
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects USD 0
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects JPY 0
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects USD over MAX_MINOR
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects JPY over MAX_MINOR
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects FULL capture amount 0.00
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects FULL JPY 1.5
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects non-hex evidence digest
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects short evidence digest
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > rejects uppercase evidence digest
+AssertionError: expected true to be false // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+ ❯ test/property/m00-hardening.property.test.ts:53:27
+     51|     ['empty evidence', { ...base, evidenceDigests: [] }],
+     52|   ])('rejects %s', (_label, doc) => {
+     53|     expect(validate(doc)).toBe(false);
+       |                           ^
+     54|   });
+     55| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/25]⎯
+
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H1 — the exported JSON Schema enforces what the domain enforces > agrees with the domain parser on arbitrary amount strings (differential)
+Error: Property failed after 3 tests
+{ seed: 1343438564, path: "2:0", endOnFailure: true }
+Counterexample: ["AUD","0"]
+Shrunk 1 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+ ❯ buildError node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2469:16
+ ❯ throwIfFailed node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2476:8
+ ❯ reportRunDetails node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2492:14
+ ❯ Module.assert node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2662:7
+ ❯ test/property/m00-hardening.property.test.ts:63:8
+     61|       fc.constantFrom('0', '0.0', '0.00', '0.01', '.5', '1.', '00', '9…
+     62|     );
+     63|     fc.assert(
+       |        ^
+     64|       fc.property(fc.constantFrom(...currencies), arbValue, (currency,…
+     65|         let domainOk: boolean;
+
+Caused by: AssertionError: expected true to be false // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+ ❯ test/property/m00-hardening.property.test.ts:71:54
+ ❯ Property.predicate node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:1355:99
+ ❯ Property.run node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:1324:24
+ ❯ propertyExecution node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2549:23
+ ❯ run node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2639:91
+ ❯ runIt node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2542:15
+ ❯ check node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2655:14
+ ❯ Module.assert node_modules/.pnpm/fast-check@4.10.2/node_modules/fast-check/lib/fast-check.js:2660:14
+ ❯ test/property/m00-hardening.property.test.ts:63:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/25]⎯
+
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-02-30T00:00:00Z
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-02-29T00:00:00Z
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-04-31T12:00:00Z
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H2 — approval digest rejects impossible instants and empty identifiers > rejects impossible instant 2026-11-12T24:00:00Z
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/property/m00-hardening.property.test.ts:107:55
+    105|     '2026-11-12T23:59:60Z',
+    106|   ])('rejects impossible instant %s', (expiresAt) => {
+    107|     expect(() => approvalDigest({ ...b, expiresAt })).toThrow(Identity…
+       |                                                       ^
+    108|   });
+    109| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/25]⎯
+
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H2 — approval digest rejects impossible instants and empty identifiers > rejects an empty tenantId
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H2 — approval digest rejects impossible instants and empty identifiers > rejects an empty revisionId
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H2 — approval digest rejects impossible instants and empty identifiers > rejects an empty approverId
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H2 — approval digest rejects impossible instants and empty identifiers > rejects an empty policyVersion
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/property/m00-hardening.property.test.ts:116:88
+    114| 
+    115|   it.each(['tenantId', 'revisionId', 'approverId', 'policyVersion'] as…
+    116|     expect(() => approvalDigest({ ...b, [k]: '', expiresAt: '2026-11-1…
+       |                                                                                        ^
+    117|     expect(() => approvalDigest({ ...b, [k]: 'x'.repeat(129), expiresA…
+    118|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/25]⎯
+
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H4 — evidence digest count is bounded before dedup/sort > exposes the shared bound
+AssertionError: expected undefined to be 64 // Object.is equality
+
+[32m- Expected:[39m 
+64
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ test/property/m00-hardening.property.test.ts:167:34
+    165| 
+    166|   it('exposes the shared bound', () => {
+    167|     expect(MAX_EVIDENCE_DIGESTS).toBe(64);
+       |                                  ^
+    168|   });
+    169| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/25]⎯
+
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H4 — evidence digest count is bounded before dedup/sort > accepts exactly 64 and rejects 65 distinct digests
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/property/m00-hardening.property.test.ts:172:56
+    170|   it('accepts exactly 64 and rejects 65 distinct digests', () => {
+    171|     expect(() => revisionDigest(content(digests(64)))).not.toThrow();
+    172|     expect(() => revisionDigest(content(digests(65)))).toThrow(Proposa…
+       |                                                        ^
+    173|   });
+    174| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/25]⎯
+
+ FAIL  |unit| test/property/m00-hardening.property.test.ts > H4 — evidence digest count is bounded before dedup/sort > rejects an oversized input even when duplicates would dedup below the bound
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/property/m00-hardening.property.test.ts:177:48
+    175|   it('rejects an oversized input even when duplicates would dedup belo…
+    176|     const dup = Array.from({ length: 1000 }, () => 'a'.repeat(64));
+    177|     expect(() => revisionDigest(content(dup))).toThrow(ProposalContent…
+       |                                                ^
+    178|   });
+    179| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/25]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  25 failed | 12 passed (37)
+   Start at  16:04:27
+   Duration  706ms (transform 76ms, setup 0ms, collect 240ms, tests 76ms, environment 0ms, prepare 69ms)
+

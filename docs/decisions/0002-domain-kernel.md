@@ -43,3 +43,12 @@ Date: 2026-11-12. Status: ACCEPTED. No prior money or idempotency type existed i
 12. `FULL` binds the capture amount the approver saw. Because PayPal refunds "captured amount − previous
     refunds" for an empty body, M03 policy permits `FULL` only for a capture whose snapshot status is
     `COMPLETED` (no prior refunds).
+
+## Post-merge corrective hardening (H1–H4, after PR #1)
+
+13. The exported JSON Schema is a contract, not documentation: money values use per-exponent patterns
+    encoding positivity, exponent and `MAX_MINOR`; evidence digests use an exported 64-hex pattern. A
+    differential property test keeps the schema and the domain parser in agreement.
+14. Approval expiry must be a real calendar instant (component round-trip), and all four bound
+    identifiers must be non-empty (≤128 chars).
+15. Evidence digest lists are bounded (64) on the raw input before dedup/sort.

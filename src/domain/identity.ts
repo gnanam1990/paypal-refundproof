@@ -71,14 +71,38 @@ export interface ApprovalBinding {
 }
 
 const APPROVAL_DOMAIN = 'refundproof/approval/v1';
-const UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
+const UTC_INSTANT = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/;
+
+/**
+ * Accepts only a real calendar instant: `Date.parse` silently rolls 2026-02-30 over to March 2, so every
+ * component is round-tripped through UTC and must come back unchanged.
+ */
+export function assertRealUtcInstant(s: string): void {
+  const m = typeof s === 'string' ? UTC_INSTANT.exec(s) : null;
+  if (!m) throw new IdentityError('expiresAt must be a UTC ISO-8601 instant ending in Z');
+  const [y, mo, d, h, mi, se] = m.slice(1, 7).map(Number) as [number, number, number, number, number, number];
+  const ms = Number((m[7] ?? '0').padEnd(3, '0'));
+  if (y < 1970) throw new IdentityError('expiresAt year out of range');
+  const t = new Date(Date.UTC(y, mo - 1, d, h, mi, se, ms));
+  const same =
+    t.getUTCFullYear() === y &&
+    t.getUTCMonth() === mo - 1 &&
+    t.getUTCDate() === d &&
+    t.getUTCHours() === h &&
+    t.getUTCMinutes() === mi &&
+    t.getUTCSeconds() === se;
+  if (!same) throw new IdentityError(`expiresAt ${s} is not a real calendar instant`);
+}
 
 /** Digest the approval binds; the revision digest already covers capture, amount/semantic, currency and reason. */
 export function approvalDigest(b: ApprovalBinding): string {
   if (!isHexDigest(b.revisionDigest)) throw new IdentityError('revision digest must be sha256 hex');
-  if (!UTC_INSTANT.test(b.expiresAt) || Number.isNaN(Date.parse(b.expiresAt))) {
-    throw new IdentityError('expiresAt must be a UTC ISO-8601 instant ending in Z');
+  for (const k of ['tenantId', 'revisionId', 'approverId', 'policyVersion'] as const) {
+    if (typeof b[k] !== 'string' || b[k].length === 0 || b[k].length > 128) {
+      throw new IdentityError(`${k} must be a non-empty identifier of at most 128 characters`);
+    }
   }
+  assertRealUtcInstant(b.expiresAt);
   return domainDigest(APPROVAL_DOMAIN, {
     tenantId: b.tenantId,
     revisionId: b.revisionId,

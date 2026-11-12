@@ -43,6 +43,9 @@ export class ProposalContentError extends Error {
 
 export const REVISION_DIGEST_DOMAIN = 'refundproof/proposal-revision/v1';
 
+/** Shared bound for the domain, the zod schema and the exported JSON Schema (SECURITY: bounded evidence). */
+export const MAX_EVIDENCE_DIGESTS = 64;
+
 export function amountCurrency(a: AmountSemantic) {
   return a.kind === 'EXACT' ? a.amount.currency : a.captureAmount.currency;
 }
@@ -66,6 +69,10 @@ export function normalizeRevisionContent(c: RevisionContent): RevisionContent {
   const note = c.reason?.noteToPayer;
   if (note !== null && (typeof note !== 'string' || note.length === 0 || note.length > 255)) {
     throw bad('noteToPayer must be null or 1..255 characters');
+  }
+  // Bound the raw input before any dedup/sort work, so an oversized list is refused, not silently shrunk.
+  if (!Array.isArray(c.evidenceDigests) || c.evidenceDigests.length > MAX_EVIDENCE_DIGESTS) {
+    throw bad(`at most ${MAX_EVIDENCE_DIGESTS} evidence digests`);
   }
   const evidence = [...new Set(c.evidenceDigests)].sort();
   if (evidence.length === 0 || !evidence.every(isHexDigest)) throw bad('evidence digests must be sha256 hex');
