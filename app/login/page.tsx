@@ -12,8 +12,9 @@ function safeNext(next: string | null): string {
   if (!next || next.includes('\\') || [...next].some((ch) => ch.charCodeAt(0) < 0x20)) return '/cases';
   try {
     const u = new URL(next, window.location.origin);
-    if (u.origin !== window.location.origin || u.pathname.startsWith('/login')) return '/cases';
-    return `${u.pathname}${u.search}${u.hash}`;
+    if (u.origin !== window.location.origin || u.pathname.startsWith('//') || u.pathname.startsWith('/login'))
+      return '/cases';
+    return u.href; // absolute and same-origin: never reinterpreted as protocol-relative
   } catch {
     return '/cases';
   }
