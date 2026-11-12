@@ -1,4 +1,5 @@
 import type { OperationIdentity } from './identity';
+import { canonicalJson } from './canonical';
 import { formatMoney, type MoneyJson, moneyToJson } from './money';
 import type { RevisionContent } from './proposal';
 
@@ -58,7 +59,9 @@ export function assertOutboundMatches(
   identity: OperationIdentity,
 ) {
   const fresh = buildOutboundRefund(content, identity);
-  if (JSON.stringify(fresh) !== JSON.stringify(req))
+  // PostgreSQL stores this snapshot as jsonb, which does not preserve object-key insertion order. Compare the
+  // canonical JSON values so a database round-trip cannot turn an identical approved request into a refusal.
+  if (canonicalJson(fresh) !== canonicalJson(req))
     throw new OutboundMismatchError('outbound request differs from approval');
   if (req.semantic === 'EXACT' && !req.body.amount)
     throw new OutboundMismatchError('EXACT refund without amount');
