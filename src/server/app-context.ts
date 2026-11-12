@@ -1,7 +1,12 @@
 import 'server-only';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { AnthropicProposalModel, LocalFixtureProposalModel, type ProposalModel } from '../ai/model';
+import {
+  AnthropicProposalModel,
+  LocalFixtureProposalModel,
+  OllamaProposalModel,
+  type ProposalModel,
+} from '../ai/model';
 import { loadConfig, type AppConfig } from '../config';
 import { EvidenceCipher } from '../crypto/cipher';
 import { createPool } from '../db/pool';
@@ -13,6 +18,8 @@ import { ContractStubCaptureSource, type CaptureSource } from '../services/captu
 function buildModel(cfg: AppConfig): ProposalModel | null {
   if (cfg.REFUNDPROOF_MODEL_PROVIDER === 'anthropic')
     return new AnthropicProposalModel(cfg.REFUNDPROOF_MODEL, cfg.REFUNDPROOF_MODEL_EFFORT);
+  if (cfg.REFUNDPROOF_MODEL_PROVIDER === 'ollama')
+    return new OllamaProposalModel(cfg.REFUNDPROOF_MODEL, cfg.REFUNDPROOF_OLLAMA_ORIGIN);
   if (cfg.REFUNDPROOF_MODEL_PROVIDER === 'local-fixture') return new LocalFixtureProposalModel();
   return null; // BLOCKED_CREDENTIAL: proposals can still be written by hand
 }

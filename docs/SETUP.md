@@ -13,7 +13,7 @@ Requirements: Node 22, pnpm 11, and PostgreSQL 17 on your machine.
    pnpm setup:env
    ```
 
-2. Create the database and apply all migrations (0001–0006):
+2. Create the database and apply all migrations (0001–0007):
 
    ```bash
    createdb refundproof
@@ -46,12 +46,29 @@ Each capability is set in `.env.local`. The System health screen shows which one
 
 | Capability | Setting | Without it |
 | --- | --- | --- |
-| Proposal model | `REFUNDPROOF_MODEL_PROVIDER=anthropic`, with the SDK's credential in the server environment. For development only, `local-fixture` uses a labelled deterministic model that is not a real call. | Operators write proposals by hand (BLOCKED_CREDENTIAL). |
+| Proposal model | `anthropic` uses the SDK credential from the server environment. `ollama` calls a real local model through an unauthenticated loopback-only origin. For development only, `local-fixture` is deterministic and is not a real model call. | Operators write proposals by hand (BLOCKED_CREDENTIAL). |
 | Capture lookup | `REFUNDPROOF_CAPTURE_SOURCE=paypal-sandbox`. For development only, `contract-stub` serves the labelled `fixtures/contract-stub-captures.json`. | Captures cannot be fetched. |
 | PayPal refunds | `PAYPAL_ENV=sandbox`, `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`. Live PayPal is refused. | Nothing is sent (BLOCKED_CREDENTIAL). |
 
 A capture read from the contract stub can never be refunded on PayPal: execution requires the capture's source to
 match the PayPal client.
+
+### Real local model
+
+With Ollama installed and running, pull a model and select it in `.env.local`:
+
+```bash
+ollama pull qwen3:4b
+```
+
+```dotenv
+REFUNDPROOF_MODEL_PROVIDER=ollama
+REFUNDPROOF_MODEL=qwen3:4b
+REFUNDPROOF_OLLAMA_ORIGIN=http://127.0.0.1:11434
+```
+
+Only `localhost`, `127.0.0.1`, or `::1` are accepted. The adapter sends redacted evidence, uses native JSON Schema
+constraints, records each invocation durably, and passes the result through the independent proposal verifier.
 
 ## Normal path
 

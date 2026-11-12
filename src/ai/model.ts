@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
+import { z } from 'zod';
 import { ProposalOutput } from './schema';
 import type { ProposalPrompt } from './prompt';
 
@@ -31,9 +32,121 @@ export class ModelProviderError extends Error {
  * (enforced by lint: src/ai/** may not import them).
  */
 export interface ProposalModel {
-  readonly provider: 'anthropic' | 'local-fixture';
+  readonly provider: 'anthropic' | 'ollama' | 'local-fixture';
   readonly model: string;
   propose(prompt: ProposalPrompt, deadlineMs: number): Promise<ModelResult>;
+}
+
+type JsonSchema = Record<string, unknown>;
+
+/**
+ * Ollama consumes JSON Schema directly. The Anthropic SDK helper intentionally moves several Zod constraints into
+ * descriptions, which is suitable for Anthropic structured output but would leave local grammar generation without
+ * real enum/const constraints. Keep a native Zod schema for Ollama and bind request-specific identifiers exactly.
+ */
+const OLLAMA_PROPOSAL_JSON_SCHEMA = z.toJSONSchema(ProposalOutput) as JsonSchema;
+
+function ollamaSchemaFor(prompt: ProposalPrompt): JsonSchema {
+  const schema = structuredClone(OLLAMA_PROPOSAL_JSON_SCHEMA);
+  const properties = schema.properties as JsonSchema;
+  properties.captureId = { type: 'string', const: prompt.captureId };
+
+  const citations = properties.citations as JsonSchema;
+  const items = citations.items as JsonSchema;
+  const citationProperties = items.properties as JsonSchema;
+  citationProperties.evidence = { type: 'string', enum: prompt.evidenceLabels };
+  return schema;
+}
+
+const OllamaResponse = z.strictObject({
+  model: z.string().min(1).max(100),
+  message: z.strictObject({
+    role: z.string().optional(),
+    content: z.string().min(1),
+    thinking: z.string().optional(),
+  }),
+  done: z.boolean().optional(),
+  done_reason: z.string().max(64).optional(),
+  prompt_eval_count: z.number().int().nonnegative().optional(),
+  eval_count: z.number().int().nonnegative().optional(),
+  created_at: z.string().optional(),
+  total_duration: z.number().nonnegative().optional(),
+  load_duration: z.number().nonnegative().optional(),
+  prompt_eval_duration: z.number().nonnegative().optional(),
+  eval_duration: z.number().nonnegative().optional(),
+});
+
+/**
+ * A real local-model adapter for Ollama. Only a loopback origin is accepted: RefundProof never turns a configurable
+ * model URL into an SSRF primitive. The request is non-streaming, temperature-zero and constrained with the same
+ * closed proposal JSON schema as the hosted provider. The answer still goes through verifyProposal().
+ */
+export class OllamaProposalModel implements ProposalModel {
+  readonly provider = 'ollama' as const;
+  private readonly endpoint: URL;
+
+  constructor(
+    readonly model: string,
+    origin = 'http://127.0.0.1:11434',
+  ) {
+    const url = new URL(origin);
+    if (
+      !['http:', 'https:'].includes(url.protocol) ||
+      !['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) ||
+      url.username ||
+      url.password
+    ) {
+      throw new ModelProviderError(
+        'Ollama origin must be an unauthenticated loopback URL',
+        'OllamaOriginError',
+      );
+    }
+    this.endpoint = new URL('/api/chat', url);
+  }
+
+  async propose(prompt: ProposalPrompt, deadlineMs: number): Promise<ModelResult> {
+    try {
+      const response = await fetch(this.endpoint, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          model: this.model,
+          stream: false,
+          think: false,
+          messages: [
+            { role: 'system', content: prompt.system },
+            { role: 'user', content: prompt.user },
+          ],
+          format: ollamaSchemaFor(prompt),
+          options: { temperature: 0 },
+        }),
+        signal: AbortSignal.timeout(deadlineMs),
+      });
+      if (!response.ok) {
+        throw new ModelProviderError(`Ollama provider error ${response.status}`, 'OllamaHttpError');
+      }
+      const body = OllamaResponse.safeParse(await response.json());
+      if (!body.success) {
+        throw new ModelProviderError('Ollama returned an invalid response envelope', 'OllamaResponseError');
+      }
+      return {
+        text: body.data.message.content,
+        modelServed: body.data.model,
+        providerRequestId: null,
+        stopReason: body.data.done_reason ?? null,
+        usage: {
+          inputTokens: body.data.prompt_eval_count ?? null,
+          outputTokens: body.data.eval_count ?? null,
+        },
+      };
+    } catch (e) {
+      if (e instanceof ModelProviderError) throw e;
+      if (e instanceof Error && (e.name === 'TimeoutError' || e.name === 'AbortError')) {
+        throw new ModelTimeoutError('model call exceeded its deadline');
+      }
+      throw new ModelProviderError('Ollama model call failed', e instanceof Error ? e.name : 'Error');
+    }
+  }
 }
 
 export const PROPOSAL_JSON_SCHEMA = zodOutputFormat(ProposalOutput).schema;
