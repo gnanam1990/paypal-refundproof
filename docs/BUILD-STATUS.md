@@ -1,7 +1,7 @@
 # Build status
 
-Project status: **SANDBOX PRODUCT COMPLETE; SUBMISSION PREPARED**. Repository:
-`gnanam1990/paypal-refundproof` (private until the final publication confirmation). Updated 2026-11-12.
+Project status: **SANDBOX PRODUCT COMPLETE; PAYPAL AI HACKATHON SUBMITTED**. Public repository:
+`gnanam1990/paypal-refundproof`. Updated 2026-11-12.
 
 ## Module delivery
 
@@ -78,7 +78,7 @@ The UI recorded `ready → sending → refund confirmed`, preserved the provider
 | Modern product UI | COMPLETE and merged |
 | Real PayPal sandbox proof screenshot | COMPLETE |
 | 64.4-second 1080p subtitles-only demo | COMPLETE and visually reviewed; real Ollama proof plus real PayPal sandbox result; SHA-256 `4c8a19de21d33ba372aaf84991eb87fb5ced52380f68788784fd68bb41551495` |
-| Public-ready README and MIT license | PREPARED |
-| Public GitHub visibility | PENDING final publication confirmation |
-| Public YouTube URL | PENDING upload/publication confirmation |
-| Devpost final submission | PENDING final action-time confirmation |
+| Public-ready README and MIT license | COMPLETE |
+| Public GitHub visibility | PUBLIC — https://github.com/gnanam1990/paypal-refundproof |
+| Public YouTube URL | PUBLIC and visibly playable — https://youtu.be/3EH1eNgIfio |
+| Devpost final submission | SUBMITTED — https://devpost.com/software/refundproof |
