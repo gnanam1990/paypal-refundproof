@@ -17,7 +17,7 @@
     "secret-scan": "node scripts/secret-scan.mjs",
     "identity:vectors": "tsx scripts/identity-vectors.ts",
     "pack:check": "node docs/build-pack/scripts/check-build-pack.mjs --root docs/build-pack",
-    "verify:m00": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm secret-scan && pnpm pack:check",
+    "verify:m00": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm secret-scan && pnpm pack:check && pnpm audit --audit-level=low",
     "test:integration": "vitest run --project integration",
     "test:restart": "vitest run --project restart",
     "db:migrate": "node --env-file-if-exists=.env.local --import tsx scripts/db.ts up",
@@ -31,7 +31,7 @@
     "case:inspect": "node --env-file-if-exists=.env.local --import tsx scripts/case-inspect.ts",
     "setup:env": "node scripts/setup-env.mjs",
     "test:all": "pnpm test:unit && pnpm test:integration && pnpm test:restart && pnpm build && pnpm test:served",
-    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:all && pnpm secret-scan && pnpm pack:check",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:all && pnpm secret-scan && pnpm pack:check && pnpm audit --audit-level=low",
     "test:served": "vitest run --project served"
   },
   "devDependencies": {
@@ -48,7 +48,7 @@
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.72.2",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.12"
   },
   "dependencies": {
     "next": "^15.5.29",

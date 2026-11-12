@@ -30,4 +30,6 @@ jobs:
       - run: pnpm build
       - run: pnpm test:served
       - run: pnpm secret-scan
+      - name: dependency audit (dev + prod)
+        run: pnpm audit --audit-level=low
       - run: pnpm pack:check

@@ -19,6 +19,7 @@ STEPS=(
   "pnpm build"
   "pnpm test:served"
   "pnpm secret-scan"
+  "pnpm audit --audit-level=low"
   "pnpm pack:check"
 )
 [ -n "${CI_EXTRA_STEPS:-}" ] && IFS=';' read -r -a EXTRA <<<"$CI_EXTRA_STEPS" && STEPS+=("${EXTRA[@]}")
