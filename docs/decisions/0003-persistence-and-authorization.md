@@ -70,3 +70,18 @@ the CLI forks a child, and T-008 showed that signalling the wrapper orphaned the
   re-keying stored digests (not supported yet; recorded as a limitation).
 - Known limitation surfaced by the S3 test: deterministic redaction does not detect personal names. M02
   must treat redacted text as still potentially identifying and keep the model input to declared fields.
+
+## Web framework: Next.js 16 (after merging main `ea11710`)
+
+Main's corrective PR #3 added `pnpm audit --audit-level=low` as a gate. With M01's production
+dependencies it failed: `next@15.5.29`, the newest 15.x backport, pins `postcss@8.4.31` exactly
+(GHSA-6g55-p6wh-862q and GHSA-r28c-9q8g-f849 high; GHSA-qx2v-qp2m-jg93 and GHSA-fxqj-rqcc-2cmp moderate).
+`next@16.4.6` pins `postcss@8.5.23`, which is patched for all four, so M01 moves to Next 16 rather than
+overriding a dependency Next bundles. Next 16 rewrote two `tsconfig.json` fields on first build
+(`jsx: react-jsx`, `.next/dev/types/**/*.ts`); both are committed so a clean build changes no files.
+
+The app uses only one catch-all route handler and a static page, so the upgrade surface is small. The
+served suite now asserts the framework boundary through the real `next start` server: the four security
+headers on a page and an API response, no `X-Powered-By`, cookie attributes, cross-origin and missing-CSRF
+mutations refused (403) and an oversized body refused (413). Planting either `poweredByHeader: true` or a
+missing `X-Frame-Options` in `next.config.mjs` fails it.

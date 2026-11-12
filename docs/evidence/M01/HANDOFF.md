@@ -1,7 +1,8 @@
 # M01 handoff — persistence and authorization
 
 Owns FR-06 (durable trail portion), NFR-01, INV-03 (database enforcement), T-001, T-008.
-Branch `m01-persistence-auth`, based on `main@b7d24aa` (M00 merged).
+Branch `m01-persistence-auth`, started from `main@b7d24aa`; main merged in (never rebased) at `af73ca0` and
+`ea11710` (M00 corrective hardening #1 and #2).
 
 ## Red evidence
 
@@ -46,3 +47,27 @@ approval service.
 Red: [`security-red.txt`](security-red.txt) (5 of 6 failed before fixes). Fixes and mutation proof in
 DR-0003. After fixes: integration 6 files / **40 tests**, restart 2 / 4 (T-001 now also asserts the CLI
 prints no unkeyed hash of the original).
+
+## Update onto main `ea11710` (merge `a2a659e`)
+
+Conflicts in `package.json` and `pnpm-lock.yaml` only: M01's scripts kept, main's audit gate added to both
+`verify:m00` and `verify`, lockfile regenerated and frozen-install verified. The audit gate then failed on
+M01's own production dependency `next@15.5.29` ([`audit-before.txt`](audit-before.txt): 2 high, 2 moderate
+in its pinned `postcss@8.4.31`). Upgraded to `next@16.4.6` ([`audit-after.txt`](audit-after.txt): no known
+vulnerabilities); rationale and framework-boundary checks in DR-0003.
+
+Current counts on the merged branch:
+
+| Suite | Files | Tests |
+| --- | --- | --- |
+| unit + property (M00 kernel incl. corrective #2) | 11 | 195 |
+| integration (real PostgreSQL 17) | 6 | 40 |
+| restart (T-001, T-008 queue) | 2 | 4 |
+| served (`next build` + `next start`, Next 16.4.6) | 1 | 2 |
+
+The new served test checks security headers, no `X-Powered-By`, cookie flags, 403 on cross-origin and
+missing CSRF, and 413 on an oversized body through the real server. Mutation proof: `poweredByHeader: true`
+fails it (`expected 'Next.js' to be null`), and so does removing `X-Frame-Options`.
+
+PayPal REST sandbox, PayPal/Venmo live, and the model API stay **BLOCKED**: no credentials, and no live
+calls are authorized or made.
