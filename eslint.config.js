@@ -28,4 +28,9 @@ export default tseslint.config(
     files: ['scripts/**', 'test/**'],
     rules: { 'no-console': 'off' },
   },
+  {
+    // Test helpers parse arbitrary JSON response bodies.
+    files: ['test/**'],
+    rules: { '@typescript-eslint/no-explicit-any': 'off' },
+  },
 );

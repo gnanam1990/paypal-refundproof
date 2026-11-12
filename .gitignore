@@ -11,3 +11,5 @@ test-results/
 *.log
 .DS_Store
 .tmp/
+next-env.d.ts
+.claude/

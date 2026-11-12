@@ -14,6 +14,10 @@ STEPS=(
   "pnpm typecheck"
   "pnpm test:unit"
   "pnpm test:unit"
+  "pnpm test:integration"
+  "pnpm test:restart"
+  "pnpm build"
+  "pnpm test:served"
   "pnpm secret-scan"
   "pnpm pack:check"
 )

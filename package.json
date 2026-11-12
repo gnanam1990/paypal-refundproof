@@ -17,11 +17,29 @@
     "secret-scan": "node scripts/secret-scan.mjs",
     "identity:vectors": "tsx scripts/identity-vectors.ts",
     "pack:check": "node docs/build-pack/scripts/check-build-pack.mjs --root docs/build-pack",
-    "verify:m00": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm secret-scan && pnpm pack:check"
+    "verify:m00": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm secret-scan && pnpm pack:check",
+    "test:integration": "vitest run --project integration",
+    "test:restart": "vitest run --project restart",
+    "db:migrate": "node --env-file-if-exists=.env.local --import tsx scripts/db.ts up",
+    "db:rollback": "node --env-file-if-exists=.env.local --import tsx scripts/db.ts down",
+    "db:status": "node --env-file-if-exists=.env.local --import tsx scripts/db.ts status",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "worker": "node --env-file-if-exists=.env.local --import tsx src/worker/main.ts",
+    "seed": "node --env-file-if-exists=.env.local --import tsx scripts/seed.ts",
+    "case:inspect": "node --env-file-if-exists=.env.local --import tsx scripts/case-inspect.ts",
+    "setup:env": "node scripts/setup-env.mjs",
+    "test:all": "pnpm test:unit && pnpm test:integration && pnpm test:restart && pnpm build && pnpm test:served",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:all && pnpm secret-scan && pnpm pack:check",
+    "test:served": "vitest run --project served"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "@types/node": "^22.20.5",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "eslint": "^9.39.5",
     "fast-check": "^4.10.2",
     "globals": "^17.14.0",
@@ -32,6 +50,11 @@
     "vitest": "^3.2.7"
   },
   "dependencies": {
+    "next": "^15.5.29",
+    "pg": "^8.23.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1",
     "zod": "^4.6.7"
   }
 }

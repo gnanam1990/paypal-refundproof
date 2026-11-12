@@ -14,8 +14,15 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "jsx": "preserve",
-    "types": ["node"]
+    "types": ["node"],
+    "allowJs": true,
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["src", "test", "scripts", "*.ts"],
+  "include": ["src", "test", "scripts", "app", "*.ts", "next-env.d.ts", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "docs/build-pack"]
 }
