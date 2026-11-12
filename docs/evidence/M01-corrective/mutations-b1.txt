@@ -1,0 +1,10 @@
+# Blocker 1 mutants (rerun after strengthening the born-phase and insert-race tests; first run: B1-c and B1-g SURVIVED)
+KILLED  B1-a DISPATCHING->NOT_SENT allowed :: Tests  3 failed | 61 passed (64) :: test/integration/attempt-finality.test.ts > Blocker 1 — reproduction: DISPATCHING cannot be laundered into NOT_SENT > refuses DISPATCHING -> NOT_SENT and therefore SUBMITTING -> READY
+KILLED  B1-b NOT_SENT after dispatch allowed :: Tests  4 failed | 60 passed (64) :: test/integration/attempt-finality.test.ts > Blocker 1 — attempts are born DISPATCHING, or NOT_SENT only when dispatch never began > refuses NOT_SENT once any attempt of the operation is DISPATCHING
+KILLED  B1-c born RESPONDED/LOST allowed :: Tests  2 failed | 62 passed (64) :: test/integration/attempt-finality.test.ts > Blocker 1 — attempts are born DISPATCHING, or NOT_SENT only when dispatch never began > refuses an attempt born RESPONDED
+KILLED  B1-d request_meta mutable :: Tests  1 failed | 63 passed (64) :: test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > DISPATCHING -> RESPONDED cannot rewrite what was sent
+KILLED  B1-e final rows editable :: Tests  9 failed | 55 passed (64) :: test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > RESPONDED: finished_at cannot change
+KILLED  B1-f LOST needs no error class :: Tests  1 failed | 63 passed (64) :: test/integration/attempt-finality.test.ts > Blocker 1 — terminal tuples are coherent > refuses LOST without error class
+KILLED  B1-g no op-row lock on insert :: Tests  1 failed | 63 passed (64) :: test/integration/attempt-finality.test.ts > Blocker 1 — concurrency > a NOT_SENT insert racing an uncommitted DISPATCHING insert waits for it and is then refused
+SURVIVED B1-h DISPATCHING edits without terminal :: Tests  64 passed (64)
+B1-h is an equivalent mutant: every DISPATCHING field is pinned by provider_attempts_coherent_outcome or the identity clause; the trigger branch only gives a clearer error.

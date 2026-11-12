@@ -1,0 +1,887 @@
+
+ RUN  v4.1.12 <repo>
+
+ ❯ |integration| test/integration/attempt-finality.test.ts (64 tests | 39 failed) 890ms
+     × refuses DISPATCHING -> NOT_SENT and therefore SUBMITTING -> READY 26ms
+     × DISPATCHING -> NOT_SENT is refused 7ms
+     × refuses an attempt born RESPONDED 9ms
+     × refuses an attempt born LOST 5ms
+     × a NOT_SENT attempt is final evidence from birth (finished, no response) 4ms
+     × refuses NOT_SENT once any attempt of the operation is DISPATCHING 4ms
+     × refuses NOT_SENT once any attempt of the operation is RESPONDED 3ms
+     × refuses NOT_SENT once any attempt of the operation is LOST 5ms
+     × refuses a born-NOT_SENT attempt that claims a response 3ms
+     × refuses a born-DISPATCHING attempt that is already finished or responded 3ms
+     × RESPONDED: finished_at cannot change 4ms
+     × RESPONDED: http_status cannot change 6ms
+     × RESPONDED: error_class cannot change 3ms
+     × RESPONDED: response_meta cannot change 5ms
+     × RESPONDED: request_meta cannot change 4ms
+     × LOST: finished_at cannot change 10ms
+     × LOST: http_status cannot change 5ms
+     × LOST: error_class cannot change 5ms
+     × LOST: response_meta cannot change 4ms
+     × LOST: request_meta cannot change 4ms
+     × NOT_SENT: finished_at cannot change 9ms
+     × NOT_SENT: http_status cannot change 7ms
+     × NOT_SENT: error_class cannot change 5ms
+     × NOT_SENT: response_meta cannot change 6ms
+     × NOT_SENT: request_meta cannot change 5ms
+     × DISPATCHING: request_meta cannot change without reaching a terminal phase 12ms
+     × DISPATCHING: error_class cannot change without reaching a terminal phase 18ms
+     × DISPATCHING: response_meta cannot change without reaching a terminal phase 11ms
+     × DISPATCHING -> RESPONDED cannot rewrite what was sent 9ms
+     × refuses RESPONDED without status 13ms
+     × refuses RESPONDED with status 0 4ms
+     × refuses RESPONDED with status 600 4ms
+     × refuses RESPONDED without finish time 4ms
+     × refuses LOST without error class 4ms
+     × refuses LOST with an HTTP status 3ms
+     × refuses LOST without finish time 4ms
+     × refuses finished before it started 5ms
+     × racing rewrite, terminal outcomes and SUBMITTING -> READY never yield NOT_SENT or READY 11ms
+     × racing NOT_SENT and DISPATCHING inserts never leave a NOT_SENT after a dispatch began 16ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 39 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — reproduction: DISPATCHING cannot be laundered into NOT_SENT > refuses DISPATCHING -> NOT_SENT and therefore SUBMITTING -> READY
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ test/integration/attempt-finality.test.ts:57:5
+     55|     await expect(
+     56|       db.pool.query(`update provider_attempts set ${TERMINAL.NOT_SENT}…
+     57|     ).rejects.toMatchObject({ code: '55000' });
+       |     ^
+     58|     await expect(setOperationState(db.pool, op.operationId, 'READY')).…
+     59|       code: '23514',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — every phase transition > DISPATCHING -> NOT_SENT is refused
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ test/integration/attempt-finality.test.ts:79:25
+     77|           expect(await phaseOf(id)).toBe(to);
+     78|         } else {
+     79|           await expect(q).rejects.toMatchObject({ code: expect.stringM…
+       |                         ^
+     80|           expect(await phaseOf(id)).toBe(from);
+     81|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — attempts are born DISPATCHING, or NOT_SENT only when dispatch never began > refuses an attempt born RESPONDED
+AssertionError: promise resolved "'att_t14_7fff7c9b'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"att_t14_7fff7c9b"
+
+ ❯ test/integration/attempt-finality.test.ts:93:59
+     91|         ? { finished_at: new Date(), http_status: 201 }
+     92|         : { finished_at: new Date(), error_class: 'TIMEOUT' };
+     93|     await expect(insertAttempt(db.pool, op, phase, fields)).rejects.to…
+       |                                                           ^
+     94|   });
+     95|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — attempts are born DISPATCHING, or NOT_SENT only when dispatch never began > refuses an attempt born LOST
+AssertionError: promise resolved "'att_t15_af9901b1'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"att_t15_af9901b1"
+
+ ❯ test/integration/attempt-finality.test.ts:93:59
+     91|         ? { finished_at: new Date(), http_status: 201 }
+     92|         : { finished_at: new Date(), error_class: 'TIMEOUT' };
+     93|     await expect(insertAttempt(db.pool, op, phase, fields)).rejects.to…
+       |                                                           ^
+     94|   });
+     95|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — attempts are born DISPATCHING, or NOT_SENT only when dispatch never began > a NOT_SENT attempt is final evidence from birth (finished, no response)
+AssertionError: expected null not to be null
+ ❯ test/integration/attempt-finality.test.ts:99:39
+     97|     const { id } = await attemptIn('NOT_SENT');
+     98|     const r = await db.pool.query('select * from provider_attempts whe…
+     99|     expect(r.rows[0].finished_at).not.toBeNull();
+       |                                       ^
+    100|     expect(r.rows[0].http_status).toBeNull();
+    101|     expect(r.rows[0].response_meta).toEqual({});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — attempts are born DISPATCHING, or NOT_SENT only when dispatch never began > refuses NOT_SENT once any attempt of the operation is DISPATCHING
+AssertionError: promise resolved "'att_t18_4cb7f8fa'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"att_t18_4cb7f8fa"
+
+ ❯ test/integration/attempt-finality.test.ts:108:58
+    106|     async (prior) => {
+    107|       const { op } = await attemptIn(prior);
+    108|       await expect(insertAttempt(db.pool, op, 'NOT_SENT')).rejects.toM…
+       |                                                          ^
+    109|     },
+    110|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — attempts are born DISPATCHING, or NOT_SENT only when dispatch never began > refuses NOT_SENT once any attempt of the operation is RESPONDED
+AssertionError: promise resolved "'att_t20_af019500'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"att_t20_af019500"
+
+ ❯ test/integration/attempt-finality.test.ts:108:58
+    106|     async (prior) => {
+    107|       const { op } = await attemptIn(prior);
+    108|       await expect(insertAttempt(db.pool, op, 'NOT_SENT')).rejects.toM…
+       |                                                          ^
+    109|     },
+    110|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — attempts are born DISPATCHING, or NOT_SENT only when dispatch never began > refuses NOT_SENT once any attempt of the operation is LOST
+AssertionError: promise resolved "'att_t22_497c9027'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"att_t22_497c9027"
+
+ ❯ test/integration/attempt-finality.test.ts:108:58
+    106|     async (prior) => {
+    107|       const { op } = await attemptIn(prior);
+    108|       await expect(insertAttempt(db.pool, op, 'NOT_SENT')).rejects.toM…
+       |                                                          ^
+    109|     },
+    110|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — attempts are born DISPATCHING, or NOT_SENT only when dispatch never began > refuses a born-NOT_SENT attempt that claims a response
+AssertionError: promise resolved "'att_t25_63bdcde9'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"att_t25_63bdcde9"
+
+ ❯ test/integration/attempt-finality.test.ts:121:78
+    119|   it('refuses a born-NOT_SENT attempt that claims a response', async (…
+    120|     const op = await submitting();
+    121|     await expect(insertAttempt(db.pool, op, 'NOT_SENT', { http_status:…
+       |                                                                              ^
+    122|       code: '23514',
+    123|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — attempts are born DISPATCHING, or NOT_SENT only when dispatch never began > refuses a born-DISPATCHING attempt that is already finished or responded
+AssertionError: promise resolved "'att_t26_b8ddb13f'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"att_t26_b8ddb13f"
+
+ ❯ test/integration/attempt-finality.test.ts:130:5
+    128|     await expect(
+    129|       insertAttempt(db.pool, op, 'DISPATCHING', { finished_at: new Dat…
+    130|     ).rejects.toMatchObject({
+       |     ^
+    131|       code: '23514',
+    132|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > RESPONDED: finished_at cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > RESPONDED: http_status cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > RESPONDED: error_class cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > RESPONDED: response_meta cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > RESPONDED: request_meta cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > LOST: finished_at cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > LOST: http_status cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > LOST: error_class cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > LOST: response_meta cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > LOST: request_meta cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > NOT_SENT: finished_at cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > NOT_SENT: http_status cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > NOT_SENT: error_class cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > NOT_SENT: response_meta cannot change
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > NOT_SENT: request_meta cannot change
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ test/integration/attempt-finality.test.ts:159:9
+    157|         await expect(
+    158|           db.pool.query(`update provider_attempts set ${edit} where id…
+    159|         ).rejects.toMatchObject({ code: expect.stringMatching(/^(55000…
+       |         ^
+    160|         const after = (await db.pool.query('select * from provider_att…
+    161|         expect(after).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > DISPATCHING: request_meta cannot change without reaching a terminal phase
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > DISPATCHING: error_class cannot change without reaching a terminal phase
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > DISPATCHING: response_meta cannot change without reaching a terminal phase
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ test/integration/attempt-finality.test.ts:171:7
+    169|       await expect(
+    170|         db.pool.query(`update provider_attempts set ${FIELD_EDITS[fiel…
+    171|       ).rejects.toMatchObject({ code: expect.stringMatching(/^(55000|2…
+       |       ^
+    172|     },
+    173|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — final evidence fields are frozen > DISPATCHING -> RESPONDED cannot rewrite what was sent
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ test/integration/attempt-finality.test.ts:182:5
+    180|         [id],
+    181|       ),
+    182|     ).rejects.toMatchObject({ code: '55000' });
+       |     ^
+    183|   });
+    184|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — terminal tuples are coherent > refuses RESPONDED without status
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — terminal tuples are coherent > refuses RESPONDED with status 0
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — terminal tuples are coherent > refuses RESPONDED with status 600
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — terminal tuples are coherent > refuses RESPONDED without finish time
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — terminal tuples are coherent > refuses LOST without error class
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — terminal tuples are coherent > refuses LOST with an HTTP status
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — terminal tuples are coherent > refuses LOST without finish time
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — terminal tuples are coherent > refuses finished before it started
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ test/integration/attempt-finality.test.ts:215:7
+    213|       await expect(
+    214|         db.pool.query(`update provider_attempts set ${edit} where id =…
+    215|       ).rejects.toMatchObject({ code: '23514' });
+       |       ^
+    216|       expect(await phaseOf(id)).toBe('DISPATCHING');
+    217|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — concurrency > racing rewrite, terminal outcomes and SUBMITTING -> READY never yield NOT_SENT or READY
+AssertionError: expected 'fulfilled' to be 'rejected' // Object.is equality
+
+Expected: "rejected"
+Received: "fulfilled"
+
+ ❯ test/integration/attempt-finality.test.ts:232:36
+    230|           setOperationState(pools[3]!, op.operationId, 'READY'),
+    231|         ]);
+    232|         expect(results[0]!.status).toBe('rejected');
+       |                                    ^
+    233|         expect(results[3]!.status).toBe('rejected');
+    234|         expect(results.filter((r) => r.status === 'fulfilled')).toHave…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/39]⎯
+
+ FAIL  |integration| test/integration/attempt-finality.test.ts > Blocker 1 — concurrency > racing NOT_SENT and DISPATCHING inserts never leave a NOT_SENT after a dispatch began
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/integration/attempt-finality.test.ts:260:81
+    258|         const firstDispatch = rows.findIndex((r) => r.phase !== 'NOT_S…
+    259|         if (firstDispatch >= 0)
+    260|           expect(rows.slice(firstDispatch).some((r) => r.phase === 'NO…
+       |                                                                                 ^
+    261|       }
+    262|     } finally {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/39]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  39 failed | 25 passed (64)
+   Start at  19:58:55
+   Duration  1.99s (transform 92ms, setup 0ms, import 179ms, tests 890ms, environment 0ms)
+
