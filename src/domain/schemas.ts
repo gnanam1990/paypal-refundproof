@@ -12,7 +12,14 @@ const currency = z.enum(
 
 /** PayPal money object; must parse exactly for its currency and be strictly positive. */
 export const PositiveMoneyJson = z
-  .strictObject({ currency, value: z.string().min(1).max(32) })
+  .strictObject({
+    currency,
+    value: z
+      .string()
+      .min(1)
+      .max(32)
+      .regex(/^(0|[1-9][0-9]*)(\.[0-9]+)?$/),
+  })
   .superRefine((m, ctx) => {
     try {
       if (parseMoney(m.value, m.currency).minor <= 0n)

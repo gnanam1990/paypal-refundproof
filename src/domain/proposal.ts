@@ -1,5 +1,5 @@
 import { domainDigest, isHexDigest } from './canonical';
-import { moneyFromJson, moneyToJson, type Money, type MoneyJson } from './money';
+import { MoneyError, money, moneyFromJson, moneyToJson, type Money, type MoneyJson } from './money';
 
 export const REFUND_REASON_CODES = [
   'DUPLICATE_CHARGE',
@@ -54,8 +54,15 @@ export function normalizeRevisionContent(c: RevisionContent): RevisionContent {
   }
   const a = c.amount;
   if (!a || (a.kind !== 'EXACT' && a.kind !== 'FULL')) throw bad('amount semantic must be EXACT or FULL');
-  const m = a.kind === 'EXACT' ? a.amount : a.captureAmount;
-  if (!m || typeof m.minor !== 'bigint' || m.minor <= 0n) throw bad('refund amount must be positive');
+  const raw = a.kind === 'EXACT' ? a.amount : a.captureAmount;
+  let m: Money;
+  try {
+    m = money(raw?.currency, raw?.minor); // re-validate structurally built Money (currency table, bounds)
+  } catch (e) {
+    throw bad(e instanceof MoneyError ? e.message : 'invalid money');
+  }
+  if (m.minor <= 0n) throw bad('refund amount must be positive');
+  if (!(REFUND_REASON_CODES as readonly string[]).includes(c.reason?.code)) throw bad('unknown reason code');
   const note = c.reason?.noteToPayer;
   if (note !== null && (typeof note !== 'string' || note.length === 0 || note.length > 255)) {
     throw bad('noteToPayer must be null or 1..255 characters');

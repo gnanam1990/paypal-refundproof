@@ -71,10 +71,20 @@ export interface ApprovalBinding {
 }
 
 const APPROVAL_DOMAIN = 'refundproof/approval/v1';
+const UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
 
 /** Digest the approval binds; the revision digest already covers capture, amount/semantic, currency and reason. */
 export function approvalDigest(b: ApprovalBinding): string {
   if (!isHexDigest(b.revisionDigest)) throw new IdentityError('revision digest must be sha256 hex');
-  if (Number.isNaN(Date.parse(b.expiresAt))) throw new IdentityError('expiresAt must be an instant');
-  return domainDigest(APPROVAL_DOMAIN, { ...b, expiresAt: new Date(b.expiresAt).toISOString() });
+  if (!UTC_INSTANT.test(b.expiresAt) || Number.isNaN(Date.parse(b.expiresAt))) {
+    throw new IdentityError('expiresAt must be a UTC ISO-8601 instant ending in Z');
+  }
+  return domainDigest(APPROVAL_DOMAIN, {
+    tenantId: b.tenantId,
+    revisionId: b.revisionId,
+    revisionDigest: b.revisionDigest,
+    approverId: b.approverId,
+    policyVersion: b.policyVersion,
+    expiresAt: new Date(b.expiresAt).toISOString(),
+  });
 }

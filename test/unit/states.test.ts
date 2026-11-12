@@ -56,7 +56,16 @@ describe('operation state machine', () => {
   });
 
   it('cancellation-before-dispatch is reachable only before any send', () => {
-    expect(() => assertOperationTransition('READY', 'CANCELLED_BEFORE_DISPATCH')).not.toThrow();
+    expect(() =>
+      assertOperationTransition('READY', 'CANCELLED_BEFORE_DISPATCH', 'NEVER_DISPATCHED'),
+    ).not.toThrow();
+    expect(() => assertOperationTransition('READY', 'CANCELLED_BEFORE_DISPATCH')).toThrow(
+      InvalidTransitionError,
+    );
+    expect(() => assertOperationTransition('SUBMITTING', 'CANCELLED_BEFORE_DISPATCH')).toThrow(
+      InvalidTransitionError,
+    );
+    expect(() => assertOperationTransition('SUBMITTING', 'READY')).toThrow(InvalidTransitionError);
     for (const from of ['OUTCOME_UNKNOWN', 'RECONCILING', 'EXHAUSTED', 'CONFIRMED'] as const) {
       expect(() => assertOperationTransition(from, 'CANCELLED_BEFORE_DISPATCH')).toThrow(
         InvalidTransitionError,

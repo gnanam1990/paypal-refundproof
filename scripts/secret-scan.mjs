@@ -34,9 +34,16 @@ for (const f of files) {
   if (ALLOW.some((r) => r.test(f))) continue;
   let text;
   try {
-    if (statSync(f).size > 2_000_000) continue;
+    if (statSync(f).size > 2_000_000) {
+      findings++;
+      console.log(`${f}: unscanned-large-file (fail closed; allowlist explicitly if intended)`);
+      continue;
+    }
     text = readFileSync(f, 'utf8');
-  } catch {
+  } catch (e) {
+    if (e && e.code === 'ENOENT') continue; // deleted but still listed in the index
+    findings++;
+    console.log(`${f}: unreadable (${e && e.code ? e.code : 'error'})`);
     continue;
   }
   text.split('\n').forEach((line, i) => {

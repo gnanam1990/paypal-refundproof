@@ -62,6 +62,30 @@ export const OPERATION_TRANSITIONS: Readonly<Record<OperationState, readonly Ope
     CANCELLED_BEFORE_DISPATCH: [],
   });
 
+/**
+ * Edges that assert something about the outside world must name the durable evidence that justifies them
+ * (INV-03). The caller is responsible for having persisted that evidence in the same transaction.
+ */
+export type TransitionEvidence =
+  | 'NOT_SENT'
+  | 'NEVER_DISPATCHED'
+  | 'PROVIDER_TERMINAL_OBSERVATION'
+  | 'PROVIDER_CONFIRMED_OBSERVATION'
+  | 'PROVIDER_PENDING_OBSERVATION';
+
+export const OPERATION_EDGE_EVIDENCE: Readonly<
+  Partial<Record<`${OperationState}->${OperationState}`, TransitionEvidence>>
+> = Object.freeze({
+  'SUBMITTING->READY': 'NOT_SENT',
+  'READY->CANCELLED_BEFORE_DISPATCH': 'NEVER_DISPATCHED',
+  'SUBMITTING->CANCELLED_BEFORE_DISPATCH': 'NEVER_DISPATCHED',
+  'SUBMITTING->PROVIDER_TERMINAL_NOT_APPLIED': 'PROVIDER_TERMINAL_OBSERVATION',
+  'RECONCILING->PROVIDER_TERMINAL_NOT_APPLIED': 'PROVIDER_TERMINAL_OBSERVATION',
+  'SUBMITTING->CONFIRMED': 'PROVIDER_CONFIRMED_OBSERVATION',
+  'RECONCILING->CONFIRMED': 'PROVIDER_CONFIRMED_OBSERVATION',
+  'SUBMITTING->RECONCILING': 'PROVIDER_PENDING_OBSERVATION',
+});
+
 export class InvalidTransitionError extends Error {
   override readonly name = 'InvalidTransitionError';
   constructor(
@@ -85,8 +109,16 @@ function check<S extends string>(
 
 export const assertProposalTransition = (from: ProposalState, to: ProposalState) =>
   check('proposal', PROPOSAL_TRANSITIONS, from, to);
-export const assertOperationTransition = (from: OperationState, to: OperationState) =>
+export function assertOperationTransition(
+  from: OperationState,
+  to: OperationState,
+  evidence?: TransitionEvidence,
+) {
   check('operation', OPERATION_TRANSITIONS, from, to);
+  const required = OPERATION_EDGE_EVIDENCE[`${from}->${to}`];
+  if (required !== evidence)
+    throw new InvalidTransitionError('operation', from, `${to} (evidence ${evidence ?? 'none'})`);
+}
 
 export const isTerminalOperationState = (s: OperationState) => OPERATION_TRANSITIONS[s].length === 0;
 

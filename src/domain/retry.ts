@@ -6,13 +6,17 @@ export interface BoundedRetryPolicy {
   readonly totalDeadlineMs: number;
 }
 
+export const MAX_ATTEMPTS_CEILING = 100;
+
 export class RetryPolicyError extends Error {
   override readonly name = 'RetryPolicyError';
 }
 
 export function validateRetryPolicy(p: BoundedRetryPolicy): BoundedRetryPolicy {
   const finitePos = (n: number) => Number.isSafeInteger(n) && n > 0;
-  if (!finitePos(p.maxAttempts)) throw new RetryPolicyError('maxAttempts must be a positive finite integer');
+  if (!finitePos(p.maxAttempts) || p.maxAttempts > MAX_ATTEMPTS_CEILING) {
+    throw new RetryPolicyError(`maxAttempts must be an integer in 1..${MAX_ATTEMPTS_CEILING}`);
+  }
   if (!finitePos(p.baseDelayMs) || !finitePos(p.maxDelayMs))
     throw new RetryPolicyError('delays must be positive');
   if (p.maxDelayMs < p.baseDelayMs) throw new RetryPolicyError('maxDelayMs must be >= baseDelayMs');
@@ -28,7 +32,9 @@ export function backoffDelayMs(
 ): number {
   const exp = Math.min(30, Math.max(0, attemptNo - 1));
   const ceiling = Math.min(p.maxDelayMs, p.baseDelayMs * 2 ** exp);
-  const r = Math.min(Math.max(random(), 0), 1);
+  const raw = random();
+  if (!Number.isFinite(raw)) throw new RetryPolicyError('random source returned a non-finite value');
+  const r = Math.min(Math.max(raw, 0), 1);
   return Math.floor(ceiling * r);
 }
 
@@ -42,9 +48,15 @@ export function retryDecision(
   random: () => number = Math.random,
 ): RetryDecision {
   validateRetryPolicy(p);
+  if (!Number.isSafeInteger(at.attemptNo) || at.attemptNo < 0)
+    throw new RetryPolicyError('attemptNo must be an integer');
+  if (!Number.isFinite(at.startedAtMs) || !Number.isFinite(at.nowMs))
+    throw new RetryPolicyError('times must be finite');
   if (at.attemptNo >= p.maxAttempts) return { kind: 'EXHAUSTED', reason: 'MAX_ATTEMPTS' };
   const remaining = at.startedAtMs + p.totalDeadlineMs - at.nowMs;
   if (remaining <= 0) return { kind: 'EXHAUSTED', reason: 'DEADLINE' };
-  const delayMs = Math.min(backoffDelayMs(p, at.attemptNo, random), remaining);
+  const delayMs = backoffDelayMs(p, at.attemptNo, random);
+  // The next attempt must start strictly before the deadline.
+  if (delayMs >= remaining) return { kind: 'EXHAUSTED', reason: 'DEADLINE' };
   return { kind: 'RETRY', delayMs };
 }

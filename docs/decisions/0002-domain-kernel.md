@@ -27,3 +27,19 @@ Date: 2026-11-12. Status: ACCEPTED. No prior money or idempotency type existed i
      OUTCOME_UNKNOWN or EXHAUSTED.
 6. **Bounded work**: `BoundedRetryPolicy` rejects infinite/zero bounds; decisions return explicit
    `EXHAUSTED` at the attempt bound or deadline and never schedule past the deadline.
+
+## Review round 1 (PR #1) changes
+
+7. Edges asserting outside-world facts require a declared `TransitionEvidence`
+   (`NOT_SENT`, `NEVER_DISPATCHED`, `PROVIDER_TERMINAL_OBSERVATION`, `PROVIDER_CONFIRMED_OBSERVATION`,
+   `PROVIDER_PENDING_OBSERVATION`); the durable evidence row is checked by the database layer (M01/M04).
+8. Approval digests accept only `Z`-suffixed ISO instants and hash an explicit field list.
+9. The digest path re-validates structurally built `Money` and reason codes.
+10. Retry decisions reject non-finite inputs, cap `maxAttempts` at 100 and return `EXHAUSTED` when the
+    next delay would reach the deadline.
+11. Ledger contract: a revision id presented with a different tenant or digest is an
+    `OperationConflictError`. The reference model's atomic check-and-insert models the database unique
+    index; the race property's sensitivity was shown by the stale-read mutation.
+12. `FULL` binds the capture amount the approver saw. Because PayPal refunds "captured amount − previous
+    refunds" for an empty body, M03 policy permits `FULL` only for a capture whose snapshot status is
+    `COMPLETED` (no prior refunds).

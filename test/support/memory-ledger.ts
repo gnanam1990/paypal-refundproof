@@ -5,7 +5,7 @@ import {
   type OperationIdentity,
   type ProviderAttemptPlan,
 } from '../../src/domain/identity';
-import type { OperationLedger } from '../../src/domain/ledger';
+import { OperationConflictError, type OperationLedger } from '../../src/domain/ledger';
 
 /**
  * Test-only reference model of the durable ledger. The scheduler interleaves the read/insert steps so the
@@ -13,6 +13,7 @@ import type { OperationLedger } from '../../src/domain/ledger';
  */
 export class MemoryOperationLedger implements OperationLedger {
   private readonly ops = new Map<string, OperationIdentity>();
+  private readonly refs = new Map<string, string>();
   private readonly attempts: ProviderAttemptPlan[] = [];
   constructor(private readonly s?: fc.Scheduler) {}
 
@@ -25,9 +26,15 @@ export class MemoryOperationLedger implements OperationLedger {
     await this.yieldPoint('read');
     const existing = this.ops.get(ref.revisionId);
     await this.yieldPoint('insert');
-    if (existing || this.ops.has(ref.revisionId))
+    const key = `${ref.tenantId}\n${ref.revisionDigest}`;
+    if (existing || this.ops.has(ref.revisionId)) {
+      if (this.refs.get(ref.revisionId) !== key)
+        throw new OperationConflictError('revision id reused for another intent');
       return { identity: this.ops.get(ref.revisionId)!, created: false };
+    }
+    // Atomic keyed insert: the model of the database unique index on approved_revision_id.
     this.ops.set(ref.revisionId, identity);
+    this.refs.set(ref.revisionId, key);
     return { identity, created: true };
   }
 

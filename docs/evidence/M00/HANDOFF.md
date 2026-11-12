@@ -32,3 +32,10 @@ The race uses a test-only reference ledger; the durable ledger must pass the sam
 ## Remaining
 
 T-001…T-004, T-007…T-012 and modules M01–M05: NOT_RUN.
+
+## Review round 1
+
+Independent reviewer (static read): 0 blockers, 4 major, 3 minor. All addressed; red evidence for the
+new tests before the fixes: [`review-red.txt`](review-red.txt) (16 failed). T-006 now shares the
+revision id across both sides; mutation (digest removed from identity input) → 11 identity tests fail.
+After fixes: `pnpm -s verify:m00` exit 0, 8 files / **92 tests** passed; CI runs the suite twice.

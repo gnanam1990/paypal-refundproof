@@ -1,6 +1,7 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { deriveOperationIdentity, planAttempt } from '../../src/domain/identity';
+import { OperationConflictError } from '../../src/domain/ledger';
 import { money } from '../../src/domain/money';
 import { revisionDigest, type RevisionContent } from '../../src/domain/proposal';
 import { arbRevisionContent, arbRevisionId } from '../support/arbitraries';
@@ -116,11 +117,12 @@ describe('T-006 — a changed intent receives a new identity', () => {
     'changing %s changes the revision digest and every derived identity',
     (_name, mutate) => {
       fc.assert(
-        fc.property(arbRevisionContent, arbRevisionId, arbRevisionId, (c, rid1, rid2) => {
+        fc.property(arbRevisionContent, arbRevisionId, (c, rid) => {
           const changed = mutate(c);
           expect(revisionDigest(changed)).not.toBe(revisionDigest(c));
-          const a = deriveOperationIdentity(ref(c.tenantId, rid1, c));
-          const b = deriveOperationIdentity(ref(changed.tenantId, rid2, changed));
+          // Same revision id on both sides isolates the digest's contribution to the identity.
+          const a = deriveOperationIdentity(ref(c.tenantId, rid, c));
+          const b = deriveOperationIdentity(ref(changed.tenantId, rid, changed));
           expect(b.operationId).not.toBe(a.operationId);
           expect(b.paypalRequestId).not.toBe(a.paypalRequestId);
           expect(b.invoiceId).not.toBe(a.invoiceId);
@@ -136,6 +138,26 @@ describe('T-006 — a changed intent receives a new identity', () => {
         const a = deriveOperationIdentity(ref(c.tenantId, r1, c));
         const b = deriveOperationIdentity(ref(c.tenantId, r2, c));
         expect(b.paypalRequestId).not.toBe(a.paypalRequestId);
+      }),
+    );
+  });
+
+  it('a different digest under the same revision id and tenant yields a different request id', () => {
+    fc.assert(
+      fc.property(arbRevisionContent, arbRevisionContent, arbRevisionId, (c1, c2, rid) => {
+        fc.pre(revisionDigest(c1) !== revisionDigest(c2));
+        const a = deriveOperationIdentity({
+          tenantId: 't',
+          revisionId: rid,
+          revisionDigest: revisionDigest(c1),
+        });
+        const b = deriveOperationIdentity({
+          tenantId: 't',
+          revisionId: rid,
+          revisionDigest: revisionDigest(c2),
+        });
+        expect(b.paypalRequestId).not.toBe(a.paypalRequestId);
+        expect(b.operationId).not.toBe(a.operationId);
       }),
     );
   });
@@ -160,5 +182,19 @@ describe('T-006 — a changed intent receives a new identity', () => {
         expect(revisionDigest(shuffled)).toBe(revisionDigest(c));
       }),
     );
+  });
+});
+
+describe('ledger contract — conflicting reuse of a revision id', () => {
+  it('rejects the same revision id arriving with a different digest or tenant', async () => {
+    const ledger = new MemoryOperationLedger();
+    const d1 = 'a'.repeat(64);
+    await ledger.ensureOperation({ tenantId: 't1', revisionId: 'rev_x', revisionDigest: d1 });
+    await expect(
+      ledger.ensureOperation({ tenantId: 't1', revisionId: 'rev_x', revisionDigest: 'b'.repeat(64) }),
+    ).rejects.toThrow(OperationConflictError);
+    await expect(
+      ledger.ensureOperation({ tenantId: 't2', revisionId: 'rev_x', revisionDigest: d1 }),
+    ).rejects.toThrow(OperationConflictError);
   });
 });
