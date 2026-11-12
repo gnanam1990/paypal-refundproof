@@ -1,0 +1,102 @@
+
+ RUN  v4.1.12 <repo>
+
+ ❯ |integration| test/integration/migrations-upgrade.test.ts (5 tests | 4 failed) 2021ms
+     × applies 0002..0004 to representative data, keeps it, and enforces the new rules on old rows 336ms
+     × a LOST attempt without an error class stops 0002 329ms
+     × an observation labelled with another tenant stops 0004 308ms
+     × an operation job without a tenant stops 0004 315ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| test/integration/migrations-upgrade.test.ts > corrective migrations — upgrade of a populated 0001 database > applies 0002..0004 to representative data, keeps it, and enforces the new rules on old rows
+AssertionError: expected null to deeply equal 2026-11-12T14:29:06.070Z
+
+- Expected:
+2026-11-12T14:29:06.070Z
+
++ Received:
+null
+
+ ❯ test/integration/migrations-upgrade.test.ts:96:30
+     94|       // legacy NOT_SENT got a finish time (deterministic backfill) an…
+     95|       const ns = (await pool.query('select * from provider_attempts wh…
+     96|       expect(ns.finished_at).toEqual(ns.started_at);
+       |                              ^
+     97|       await expect(
+     98|         pool.query(`update provider_attempts set error_class = 'x' whe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| test/integration/migrations-upgrade.test.ts > corrective migrations — refuse to upgrade over rows that violate the new invariants > a LOST attempt without an error class stops 0002
+AssertionError: promise resolved "[]" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+[]
+
+ ❯ upgradeFailsWith test/integration/migrations-upgrade.test.ts:164:34
+    162|       await violate(pool, s);
+    163|       const before = await counts(pool);
+    164|       await expect(migrateUp(url)).rejects.toThrow(message);
+       |                                  ^
+    165|       const applied = (await pool.query('select version from schema_mi…
+    166|         (r) => r.version,
+ ❯ test/integration/migrations-upgrade.test.ts:177:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| test/integration/migrations-upgrade.test.ts > corrective migrations — refuse to upgrade over rows that violate the new invariants > an observation labelled with another tenant stops 0004
+AssertionError: promise resolved "[]" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+[]
+
+ ❯ upgradeFailsWith test/integration/migrations-upgrade.test.ts:164:34
+    162|       await violate(pool, s);
+    163|       const before = await counts(pool);
+    164|       await expect(migrateUp(url)).rejects.toThrow(message);
+       |                                  ^
+    165|       const applied = (await pool.query('select version from schema_mi…
+    166|         (r) => r.version,
+ ❯ test/integration/migrations-upgrade.test.ts:189:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| test/integration/migrations-upgrade.test.ts > corrective migrations — refuse to upgrade over rows that violate the new invariants > an operation job without a tenant stops 0004
+AssertionError: promise resolved "[]" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+[]
+
+ ❯ upgradeFailsWith test/integration/migrations-upgrade.test.ts:164:34
+    162|       await violate(pool, s);
+    163|       const before = await counts(pool);
+    164|       await expect(migrateUp(url)).rejects.toThrow(message);
+       |                                  ^
+    165|       const applied = (await pool.query('select version from schema_mi…
+    166|         (r) => r.version,
+ ❯ test/integration/migrations-upgrade.test.ts:203:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  19:59:04
+   Duration  2.97s (transform 77ms, setup 0ms, import 134ms, tests 2.02s, environment 0ms)
+

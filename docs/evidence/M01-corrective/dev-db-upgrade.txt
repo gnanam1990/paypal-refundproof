@@ -1,0 +1,66 @@
+## Local dev database rehearsal (database 'refundproof', created and seeded at 0001 earlier in M01)
+### before
+{
+  "applied": [
+    {
+      "version": "0001",
+      "name": "core",
+      "applied_at": "2026-11-12T10:29:04.786Z"
+    }
+  ],
+  "pending": [
+    "0002_attempt_finality",
+    "0003_lease_fencing",
+    "0004_tenant_bound_evidence"
+  ]
+}
+tenants | actors | cases | evidence | ops | attempts | jobs | audits | transitions
+1 | 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+(1 row)
+### pnpm db:migrate
+{
+  "applied": [
+    "0002_attempt_finality",
+    "0003_lease_fencing",
+    "0004_tenant_bound_evidence"
+  ]
+}
+exit=0
+### after
+{
+  "applied": [
+    {
+      "version": "0001",
+      "name": "core",
+      "applied_at": "2026-11-12T10:29:04.786Z"
+    },
+    {
+      "version": "0002",
+      "name": "attempt_finality",
+      "applied_at": "2026-11-12T14:37:11.872Z"
+    },
+    {
+      "version": "0003",
+      "name": "lease_fencing",
+      "applied_at": "2026-11-12T14:37:11.891Z"
+    },
+    {
+      "version": "0004",
+      "name": "tenant_bound_evidence",
+      "applied_at": "2026-11-12T14:37:11.896Z"
+    }
+  ],
+  "pending": []
+}
+tenants | actors | cases | evidence | ops | attempts | jobs | audits | transitions
+1 | 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+(1 row)
+conname
+outbox_jobs_closed_by_current_claim
+outbox_jobs_operation_needs_tenant
+outbox_jobs_tenant_operation_fkey
+provider_attempts_coherent_outcome
+provider_observations_tenant_operation_fkey
+refund_operations_confirmed_observation_bound_fkey
+refund_operations_terminal_observation_bound_fkey
+(7 rows)

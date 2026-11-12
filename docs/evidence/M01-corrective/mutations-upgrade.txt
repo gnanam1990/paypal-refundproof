@@ -1,0 +1,3 @@
+# Upgrade-path mutants
+KILLED  U-a no NOT_SENT backfill :: Tests  3 failed | 2 passed (5) :: test/integration/migrations-upgrade.test.ts > corrective migrations — upgrade of a populated 0001 database > applies 0002..0004 to representative data, keeps it, and enforces the new rules on old rows
+KILLED  U-b 0004 down leaves the confirmed binding :: Tests  1 failed | 4 passed (5) :: test/integration/migrations-upgrade.test.ts > corrective migrations — upgrade of a populated 0001 database > rolls the corrective migrations back and re-applies them with data present
