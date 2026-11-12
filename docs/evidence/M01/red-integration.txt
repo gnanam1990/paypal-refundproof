@@ -1,0 +1,74 @@
+
+ RUN  v3.2.7 <repo>
+
+ ✓ |integration| test/integration/migrations.test.ts (3 tests) 1334ms
+   ✓ migrations > apply from empty, roll back completely, and re-apply  638ms
+   ✓ migrations > refuses a migration whose content changed after being applied  509ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| test/integration/auth-api.test.ts [ test/integration/auth-api.test.ts ]
+Error: Cannot find module '../../src/crypto/cipher' imported from '<repo>/test/support/fixtures.ts'
+ ❯ test/support/fixtures.ts:3:1
+      1| import { randomBytes } from 'node:crypto';
+      2| import type pg from 'pg';
+      3| import { EvidenceCipher } from '../../src/crypto/cipher';
+       | ^
+      4| import { createActor, createTenant } from '../../src/services/tenancy';
+      5| import type { Actor } from '../../src/auth/actor';
+
+Caused by: Error: Failed to load url ../../src/crypto/cipher (resolved id: ../../src/crypto/cipher) in <repo>/test/support/fixtures.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.8_@types+node@22.20.5_tsx@4.23.15/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| test/integration/constraints.test.ts [ test/integration/constraints.test.ts ]
+Error: Cannot find module '../../src/services/cases' imported from '<repo>/test/integration/constraints.test.ts'
+ ❯ test/integration/constraints.test.ts:4:1
+      2| import { money } from '../../src/domain/money';
+      3| import { encodeRevisionContent, revisionDigest, type RevisionContent }…
+      4| import { createCase } from '../../src/services/cases';
+       | ^
+      5| import { insertRevision } from '../../src/services/revisions';
+      6| import { freshDatabase } from '../support/db';
+
+Caused by: Error: Failed to load url ../../src/services/cases (resolved id: ../../src/services/cases) in <repo>/test/integration/constraints.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.8_@types+node@22.20.5_tsx@4.23.15/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| test/integration/ledger.test.ts [ test/integration/ledger.test.ts ]
+Error: Cannot find module '../../src/db/operation-ledger' imported from '<repo>/test/integration/ledger.test.ts'
+ ❯ test/integration/ledger.test.ts:3:1
+      1| import pg from 'pg';
+      2| import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+      3| import { PgOperationLedger } from '../../src/db/operation-ledger';
+       | ^
+      4| import { OperationConflictError } from '../../src/domain/ledger';
+      5| import { money } from '../../src/domain/money';
+
+Caused by: Error: Failed to load url ../../src/db/operation-ledger (resolved id: ../../src/db/operation-ledger) in <repo>/test/integration/ledger.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.8_@types+node@22.20.5_tsx@4.23.15/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| test/integration/outbox.test.ts [ test/integration/outbox.test.ts ]
+Error: Cannot find module '../../src/db/pool' imported from '<repo>/test/integration/outbox.test.ts'
+ ❯ test/integration/outbox.test.ts:2:1
+      1| import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+      2| import { withTx } from '../../src/db/pool';
+       | ^
+      3| import { claimJobs, completeJob, enqueueJob, failJob } from '../../src…
+      4| import { freshDatabase } from '../support/db';
+
+Caused by: Error: Failed to load url ../../src/db/pool (resolved id: ../../src/db/pool) in <repo>/test/integration/outbox.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.8_@types+node@22.20.5_tsx@4.23.15/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  4 failed | 1 passed (5)
+      Tests  3 passed (3)
+   Start at  15:39:43
+   Duration  2.93s (transform 151ms, setup 0ms, collect 83ms, tests 1.33s, environment 1ms, prepare 559ms)
+

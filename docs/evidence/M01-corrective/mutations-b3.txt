@@ -1,0 +1,14 @@
+# Blocker 3 mutants
+KILLED  B3-a no observation tenant/operation FK :: Tests  5 failed | 17 passed (22) :: test/integration/tenant-binding.test.ts > Blocker 3 — reproduction: a tenant-B observation cannot confirm tenant A > refuses an observation labelled tenant B that points at tenant A’s operation
+SURVIVED B3-b confirmed evidence not bound to operation :: Tests  22 passed (22)
+KILLED  B3-c no outbox tenant/operation FK :: Tests  2 failed | 20 passed (22) :: test/integration/tenant-binding.test.ts > Blocker 3 — outbox jobs are bound to their operation’s tenant > refuses a tenant-B job for tenant A’s operation
+KILLED  B3-d outbox job may omit tenant :: Tests  1 failed | 21 passed (22) :: test/integration/tenant-binding.test.ts > Blocker 3 — outbox jobs are bound to their operation’s tenant > refuses an operation job without a tenant
+KILLED  B3-e trigger ignores confirmed tenant :: Tests  1 failed | 21 passed (22) :: test/integration/tenant-binding.test.ts > Blocker 3 — the transition trigger checks tenant on its own (defense in depth) > CONFIRMED: refused by the trigger even with the binding foreign keys removed
+KILLED  B3-f trigger ignores pending tenant :: Tests  1 failed | 21 passed (22) :: test/integration/tenant-binding.test.ts > Blocker 3 — the transition trigger checks tenant on its own (defense in depth) > RECONCILING: refused by the trigger even with the binding foreign keys removed
+SURVIVED B3-g trigger uses <> for operation (NULL slips) :: Tests  22 passed (22)
+KILLED  B3-h evidence reference re-pointable :: Tests  1 failed | 21 passed (22) :: test/integration/tenant-binding.test.ts > Blocker 3 — every cross-tenant / unbound evidence permutation > cannot re-point a confirmed operation at other evidence
+# Rerun after adding single-layer tests (first run: B3-b and B3-g SURVIVED)
+KILLED  B3-b confirmed evidence not bound to operation :: Tests  1 failed | 25 passed (26) :: test/integration/tenant-binding.test.ts > Blocker 3 — each layer holds on its own > CONFIRMED: the keys alone refuse another operation's or tenant's evidence, guard trigger disabled
+KILLED  B3-b2 terminal evidence not bound to operation :: Tests  1 failed | 25 passed (26) :: test/integration/tenant-binding.test.ts > Blocker 3 — each layer holds on its own > PROVIDER_TERMINAL_NOT_APPLIED: the keys alone refuse another operation's or tenant's evidence, guard trigger disabled
+KILLED  B3-g trigger uses <> for operation (NULL slips) :: Tests  1 failed | 25 passed (26) :: test/integration/tenant-binding.test.ts > Blocker 3 — each layer holds on its own > CONFIRMED: the trigger alone refuses evidence with no operation (NULL-safe), keys dropped
+KILLED  B3-g2 terminal trigger uses <> (NULL slips) :: Tests  1 failed | 25 passed (26) :: test/integration/tenant-binding.test.ts > Blocker 3 — each layer holds on its own > PROVIDER_TERMINAL_NOT_APPLIED: the trigger alone refuses evidence with no operation (NULL-safe), keys dropped

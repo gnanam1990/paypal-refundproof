@@ -8,7 +8,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -23,6 +23,12 @@ jobs:
       - run: pnpm test:unit
       - name: determinism (second run)
         run: pnpm test:unit
+      # Integration/restart/served suites start private PostgreSQL clusters with initdb/pg_ctl
+      # (preinstalled on ubuntu runners under /usr/lib/postgresql/*/bin).
+      - run: pnpm test:integration
+      - run: pnpm test:restart
+      - run: pnpm build
+      - run: pnpm test:served
       - run: pnpm secret-scan
       - name: dependency audit (dev + prod)
         run: pnpm audit --audit-level=low

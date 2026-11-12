@@ -117,11 +117,9 @@ describe('F1 — the domain decoder enforces the complete closed wire shape', ()
     });
     fc.assert(
       fc.property(fc.boolean(), fc.array(mutation, { minLength: 1, maxLength: 3 }), (full, muts) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the fuzzer mutates arbitrary JSON
         const doc = valid() as Record<string, any>;
         if (full) doc.amount = { kind: 'FULL', captureAmount: { currency: 'USD', value: '25.00' } };
         for (const m of muts) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the fuzzer mutates arbitrary JSON
           let target: any = doc;
           for (const p of m.path) target = target && typeof target === 'object' ? target[p] : undefined;
           if (!target || typeof target !== 'object' || Array.isArray(target)) continue;

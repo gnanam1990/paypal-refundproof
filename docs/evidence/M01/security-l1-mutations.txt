@@ -1,0 +1,8 @@
+== M1 MAC check skipped
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: forged: v1.act_s12vz385k0cpe6dyg: expected 200 to be 429 // Object.is equality
+      Tests  1 failed | 5 passed (6)
+== M2 account binding skipped
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: forged: v1.act_pc7z3zwys1b9mbe4x: expected 200 to be 429 // Object.is equality
+      Tests  1 failed | 5 passed (6)
