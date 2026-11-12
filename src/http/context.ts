@@ -1,6 +1,7 @@
 import type pg from 'pg';
 import type { ProposalModel } from '../ai/model';
 import type { EvidenceCipher } from '../crypto/cipher';
+import type { PayPalClient } from '../paypal/client';
 import type { CaptureSource } from '../services/captures';
 
 export interface ApiConfig {
@@ -23,4 +24,6 @@ export interface ApiContext {
   model?: ProposalModel | null;
   /** Capture lookup boundary; null means no capture source is configured. */
   captures?: CaptureSource | null;
+  /** PayPal sandbox client; null means no sandbox credential (BLOCKED_CREDENTIAL). */
+  paypal?: PayPalClient | null;
 }

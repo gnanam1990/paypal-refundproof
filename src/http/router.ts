@@ -17,6 +17,13 @@ import {
   submitForApproval,
 } from '../services/approvals';
 import { fetchCaptureSnapshot, listSnapshots } from '../services/captures';
+import {
+  escalateOperation,
+  getOperation,
+  listOperations,
+  requestExecution,
+  resumeReconciliation,
+} from '../services/execution';
 import { authorRevision, generateProposal, listCitations, listInvocations } from '../services/proposals';
 import { listRevisions } from '../services/revisions';
 import type { ApiContext } from './context';
@@ -253,10 +260,11 @@ route('GET', '/api/cases/:caseId', async ({ ctx, actor, params }) => {
     listEvidence(ctx.pool, actor, kase.id),
     listRevisions(ctx.pool, actor, kase.id),
   ]);
-  const [snapshots, invocations, citations] = await Promise.all([
+  const [snapshots, invocations, citations, operations] = await Promise.all([
     listSnapshots(ctx.pool, actor, kase.id),
     listInvocations(ctx.pool, actor, kase.id),
     listCitations(ctx.pool, actor, kase.id),
+    listOperations(ctx.pool, actor, kase.id),
   ]);
   return json(200, {
     case: kase,
@@ -265,7 +273,9 @@ route('GET', '/api/cases/:caseId', async ({ ctx, actor, params }) => {
     snapshots,
     invocations,
     citations,
+    operations,
     capabilities: {
+      paypal: ctx.paypal ? ctx.paypal.label : null,
       model: ctx.model ? { provider: ctx.model.provider, model: ctx.model.model } : null,
       captureSource: ctx.captures?.label ?? null,
     },
@@ -328,4 +338,29 @@ route('POST', '/api/revisions/:revisionId/decision', async ({ ctx, actor, params
 
 route('POST', '/api/approvals/:approvalId/revoke', async ({ ctx, actor, params, body }) =>
   json(200, { facts: await revokeApproval(ctx.pool, actor, params.approvalId!, body) }),
+);
+
+// ------------------------------------------------------------------------------------------------ execution
+
+const executionDeps = (ctx: ApiContext) => ({
+  pool: ctx.pool,
+  paypal: ctx.paypal ?? null,
+  reconcileDeadlineMs: 24 * 3_600_000,
+});
+
+route('POST', '/api/revisions/:revisionId/execute', async ({ ctx, actor, params }) => {
+  const r = await requestExecution(executionDeps(ctx), actor, params.revisionId!);
+  return json(r.created ? 201 : 200, r);
+});
+
+route('GET', '/api/operations/:operationId', async ({ ctx, actor, params }) =>
+  json(200, { operation: await getOperation(ctx.pool, actor, params.operationId!) }),
+);
+
+route('POST', '/api/operations/:operationId/reconcile', async ({ ctx, actor, params }) =>
+  json(200, await resumeReconciliation(ctx.pool, actor, params.operationId!)),
+);
+
+route('POST', '/api/operations/:operationId/escalate', async ({ ctx, actor, params, body }) =>
+  json(200, await escalateOperation(ctx.pool, actor, params.operationId!, body)),
 );
