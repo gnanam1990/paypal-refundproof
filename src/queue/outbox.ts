@@ -129,6 +129,19 @@ async function closedByThisClaim(db: Queryable, job: Job, action: CloseAction): 
 const lost = (job: Job, workerId: string) =>
   new LeaseLostError(`lease on job ${job.id} (fence ${job.fence}) is no longer held by ${workerId}`);
 
+/**
+ * Locks the job row and proves this exact claim still holds an unexpired lease. Call it first inside any
+ * transaction that writes an effect for the job, so a stale or reclaimed worker cannot write one.
+ */
+export async function holdLease(db: Queryable, job: Job, workerId: string): Promise<void> {
+  const r = await db.query(`select 1 from outbox_jobs where ${HELD} for update`, [
+    job.id,
+    workerId,
+    job.fence,
+  ]);
+  if (r.rowCount !== 1) throw lost(job, workerId);
+}
+
 /** Extends the lease. False when this claim no longer holds it (expired, reclaimed, or closed). */
 export async function renewLease(
   db: Queryable,

@@ -7,6 +7,7 @@ import { EvidenceCipher } from '../crypto/cipher';
 import { createPool } from '../db/pool';
 import type { ApiContext } from '../http/context';
 import { createApi } from '../http/router';
+import { paypalFromEnv } from '../paypal/env';
 import { ContractStubCaptureSource, type CaptureSource } from '../services/captures';
 
 function buildModel(cfg: AppConfig): ProposalModel | null {
@@ -16,12 +17,13 @@ function buildModel(cfg: AppConfig): ProposalModel | null {
   return null; // BLOCKED_CREDENTIAL: proposals can still be written by hand
 }
 
-function buildCaptures(cfg: AppConfig): CaptureSource | null {
+function buildCaptures(cfg: AppConfig, paypal: ReturnType<typeof paypalFromEnv>): CaptureSource | null {
   if (cfg.REFUNDPROOF_CAPTURE_SOURCE === 'contract-stub') {
     const file = join(process.cwd(), 'fixtures', 'contract-stub-captures.json');
     return new ContractStubCaptureSource(JSON.parse(readFileSync(file, 'utf8')));
   }
-  return null; // 'paypal-sandbox' is provided by the PayPal adapter (M04); 'none' is BLOCKED_CREDENTIAL
+  if (cfg.REFUNDPROOF_CAPTURE_SOURCE === 'paypal-sandbox') return paypal; // null without a sandbox credential
+  return null; // 'none' is BLOCKED_CREDENTIAL
 }
 
 // One pool and handler per server process (survives Next.js dev hot reloads via globalThis).
@@ -32,6 +34,7 @@ const g = globalThis as unknown as {
 export function appRuntime() {
   if (!g.__refundproof) {
     const cfg = loadConfig();
+    const paypal = paypalFromEnv();
     const ctx: ApiContext = {
       pool: createPool(cfg.DATABASE_URL, { max: 10 }),
       cipher: EvidenceCipher.fromBase64Key(cfg.REFUNDPROOF_DATA_KEY),
@@ -44,7 +47,8 @@ export function appRuntime() {
         modelDeadlineMs: cfg.REFUNDPROOF_MODEL_DEADLINE_MS,
       },
       model: buildModel(cfg),
-      captures: buildCaptures(cfg),
+      captures: buildCaptures(cfg, paypal),
+      paypal,
     };
     g.__refundproof = { ctx, handle: createApi(ctx) };
   }
