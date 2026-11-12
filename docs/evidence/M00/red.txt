@@ -1,0 +1,99 @@
+
+ RUN  v3.2.7 <repo>
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| test/property/identity.property.test.ts [ test/property/identity.property.test.ts ]
+Error: Cannot find module '../../src/domain/identity' imported from '<repo>/test/property/identity.property.test.ts'
+ ❯ test/property/identity.property.test.ts:3:1
+      1| import fc from 'fast-check';
+      2| import { describe, expect, it } from 'vitest';
+      3| import { deriveOperationIdentity, planAttempt } from '../../src/domain…
+       | ^
+      4| import { money } from '../../src/domain/money';
+      5| import { revisionDigest, type RevisionContent } from '../../src/domain…
+
+Caused by: Error: Failed to load url ../../src/domain/identity (resolved id: ../../src/domain/identity) in <repo>/test/property/identity.property.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.8_@types+node@22.20.5/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| test/property/retry.property.test.ts [ test/property/retry.property.test.ts ]
+Error: Cannot find module '../../src/domain/retry' imported from '<repo>/test/property/retry.property.test.ts'
+ ❯ test/property/retry.property.test.ts:3:1
+      1| import fc from 'fast-check';
+      2| import { describe, expect, it } from 'vitest';
+      3| import { backoffDelayMs, retryDecision, validateRetryPolicy } from '..…
+       | ^
+      4| 
+      5| const arbPolicy = fc
+
+Caused by: Error: Failed to load url ../../src/domain/retry (resolved id: ../../src/domain/retry) in <repo>/test/property/retry.property.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.8_@types+node@22.20.5/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| test/unit/canonical.test.ts [ test/unit/canonical.test.ts ]
+Error: Cannot find module '../../src/domain/canonical' imported from '<repo>/test/unit/canonical.test.ts'
+ ❯ test/unit/canonical.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { CanonicalizationError, canonicalJson, domainDigest } from '..…
+       | ^
+      3| 
+      4| describe('canonical JSON', () => {
+
+Caused by: Error: Failed to load url ../../src/domain/canonical (resolved id: ../../src/domain/canonical) in <repo>/test/unit/canonical.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.8_@types+node@22.20.5/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| test/unit/money.test.ts [ test/unit/money.test.ts ]
+Error: Cannot find module '../../src/domain/money' imported from '<repo>/test/unit/money.test.ts'
+ ❯ test/unit/money.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { MAX_MINOR, MoneyError, compareMoney, formatMoney, money, pars…
+       | ^
+      3| 
+      4| describe('Money', () => {
+
+Caused by: Error: Failed to load url ../../src/domain/money (resolved id: ../../src/domain/money) in <repo>/test/unit/money.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.8_@types+node@22.20.5/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| test/unit/schemas.test.ts [ test/unit/schemas.test.ts ]
+Error: Cannot find module '../../src/domain/proposal' imported from '<repo>/test/unit/schemas.test.ts'
+ ❯ test/unit/schemas.test.ts:3:1
+      1| import fc from 'fast-check';
+      2| import { describe, expect, it } from 'vitest';
+      3| import { decodeRevisionContent, encodeRevisionContent, revisionDigest …
+       | ^
+      4| import { RevisionContentJson, revisionContentJsonSchema } from '../../…
+      5| import { arbRevisionContent } from '../support/arbitraries';
+
+Caused by: Error: Failed to load url ../../src/domain/proposal (resolved id: ../../src/domain/proposal) in <repo>/test/unit/schemas.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.8_@types+node@22.20.5/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| test/unit/states.test.ts [ test/unit/states.test.ts ]
+Error: Cannot find module '../../src/domain/states' imported from '<repo>/test/unit/states.test.ts'
+ ❯ test/unit/states.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   InvalidTransitionError,
+      4|   OPERATION_STATES,
+
+Caused by: Error: Failed to load url ../../src/domain/states (resolved id: ../../src/domain/states) in <repo>/test/unit/states.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.8_@types+node@22.20.5/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  6 failed (6)
+      Tests  no tests
+   Start at  15:22:49
+   Duration  382ms (transform 133ms, setup 0ms, collect 0ms, tests 0ms, environment 1ms, prepare 624ms)
+

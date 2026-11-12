@@ -1,0 +1,15 @@
+
+ RUN  v3.2.7 <repo>
+
+ ✓ |unit| test/unit/canonical.test.ts (11 tests) 8ms
+ ✓ |unit| test/unit/money.test.ts (18 tests) 15ms
+ ✓ |unit| test/property/retry.property.test.ts (4 tests) 44ms
+ ✓ |unit| test/unit/states.test.ts (21 tests) 7ms
+ ✓ |unit| test/unit/schemas.test.ts (3 tests) 136ms
+ ✓ |unit| test/property/identity.property.test.ts (17 tests) 737ms
+
+ Test Files  6 passed (6)
+      Tests  74 passed (74)
+   Start at  15:24:52
+   Duration  1.62s (transform 519ms, setup 0ms, collect 1.94s, tests 948ms, environment 11ms, prepare 674ms)
+
