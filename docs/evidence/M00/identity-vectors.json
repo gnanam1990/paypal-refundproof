@@ -1,0 +1,10 @@
+{
+  "digest": "25ba78ecd9b7342758d84c898dd74e8c3672acb09a6103c713cc524daee1dd85",
+  "full": "6501e37d7b8e750b84b824fd04e9d59e2210b71d82adb64b8564d4ca3d0d59b7",
+  "identity": {
+    "operationId": "op_fc900cbaf91afc2883c66f18b70197a5",
+    "paypalRequestId": "refundproof-fc900cbaf91afc2883c66f18b70197a56e7a7d0d55144b21c4e43aba0314e612",
+    "invoiceId": "RP-FC900CBAF91AFC2883C66F18",
+    "customId": "rp_op_fc900cbaf91afc2883c66f18b70197a5"
+  }
+}

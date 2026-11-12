@@ -1,0 +1,208 @@
+
+ RUN  v3.2.7 <repo>
+
+ ✓ |unit| test/unit/money.test.ts (18 tests) 3ms
+ ✓ |unit| test/unit/canonical.test.ts (11 tests) 6ms
+ ✓ |unit| test/unit/states.test.ts (21 tests) 4ms
+ ✓ |unit| test/property/retry.property.test.ts (4 tests) 17ms
+ ✓ |unit| test/unit/identity-vectors.test.ts (1 test) 4ms
+ ❯ |unit| test/unit/review-m00.test.ts (15 tests | 15 failed) 39ms
+   × kernel validation (M00 review findings) > rejects hand-built money that bypasses money() 7ms
+     → expected function to throw an error, but it didn't
+   × kernel validation (M00 review findings) > rejects an unknown reason code in the digest path 1ms
+     → expected function to throw an error, but it didn't
+   × kernel validation (M00 review findings) > approval digest refuses offset-less or non-ISO instants and ignores extra properties 6ms
+     → expected [Function] to throw an error
+   × evidence-gated operation edges (M00 review finding) > SUBMITTING -> READY requires declared evidence 0ms
+     → expected function to throw an error, but it didn't
+   × evidence-gated operation edges (M00 review finding) > SUBMITTING -> CANCELLED_BEFORE_DISPATCH requires declared evidence 0ms
+     → expected function to throw an error, but it didn't
+   × evidence-gated operation edges (M00 review finding) > READY -> CANCELLED_BEFORE_DISPATCH requires declared evidence 0ms
+     → expected function to throw an error, but it didn't
+   × evidence-gated operation edges (M00 review finding) > SUBMITTING -> PROVIDER_TERMINAL_NOT_APPLIED requires declared evidence 0ms
+     → expected function to throw an error, but it didn't
+   × evidence-gated operation edges (M00 review finding) > RECONCILING -> PROVIDER_TERMINAL_NOT_APPLIED requires declared evidence 0ms
+     → expected function to throw an error, but it didn't
+   × evidence-gated operation edges (M00 review finding) > SUBMITTING -> CONFIRMED requires declared evidence 0ms
+     → expected function to throw an error, but it didn't
+   × evidence-gated operation edges (M00 review finding) > RECONCILING -> CONFIRMED requires declared evidence 0ms
+     → expected function to throw an error, but it didn't
+   × evidence-gated operation edges (M00 review finding) > SUBMITTING -> RECONCILING requires declared evidence 0ms
+     → expected function to throw an error, but it didn't
+   × evidence-gated operation edges (M00 review finding) > rejects the wrong kind of evidence 0ms
+     → expected function to throw an error, but it didn't
+   × retry hardening (M00 review finding) > rejects non-finite inputs and an excessive attempt bound 0ms
+     → expected function to throw an error, but it didn't
+   × retry hardening (M00 review finding) > is exhausted rather than retrying at the deadline instant 2ms
+     → expected 'RETRY' to be 'EXHAUSTED' // Object.is equality
+   × exported JSON schema keeps the money format > carries a decimal pattern on money values 19ms
+     → expected '{"$schema":"https://json-schema.org/d…' to contain '"pattern"'
+ ✓ |unit| test/unit/schemas.test.ts (3 tests) 86ms
+ ❯ |unit| test/property/identity.property.test.ts (18 tests | 1 failed) 347ms
+   ✓ T-005 — same approved revision reuses one request identity > derives identical operation and PayPal request identities on every retry 119ms
+   ✓ T-005 — same approved revision reuses one request identity > keeps every attempt under the operation request identity 12ms
+   ✓ T-005 — same approved revision reuses one request identity > produces PayPal-compatible identifiers 11ms
+   ✓ T-005 — same approved revision reuses one request identity > races concurrent workers into exactly one operation with attempts under one request id 22ms
+   ✓ T-006 — a changed intent receives a new identity > changing capture changes the revision digest and every derived identity 18ms
+   ✓ T-006 — a changed intent receives a new identity > changing amount changes the revision digest and every derived identity 23ms
+   ✓ T-006 — a changed intent receives a new identity > changing currency changes the revision digest and every derived identity 16ms
+   ✓ T-006 — a changed intent receives a new identity > changing full-semantic changes the revision digest and every derived identity 17ms
+   ✓ T-006 — a changed intent receives a new identity > changing reason changes the revision digest and every derived identity 15ms
+   ✓ T-006 — a changed intent receives a new identity > changing note changes the revision digest and every derived identity 12ms
+   ✓ T-006 — a changed intent receives a new identity > changing evidence changes the revision digest and every derived identity 12ms
+   ✓ T-006 — a changed intent receives a new identity > changing policy changes the revision digest and every derived identity 12ms
+   ✓ T-006 — a changed intent receives a new identity > changing tenant changes the revision digest and every derived identity 13ms
+   ✓ T-006 — a changed intent receives a new identity > changing case changes the revision digest and every derived identity 14ms
+   ✓ T-006 — a changed intent receives a new identity > gives a new revision with identical content its own identity (no reuse across approvals) 10ms
+   ✓ T-006 — a changed intent receives a new identity > refuses an identity whose digest does not match the content it claims 8ms
+   ✓ T-006 — a changed intent receives a new identity > is insensitive to evidence order and duplicates (same intent, same digest) 7ms
+   × ledger contract — conflicting reuse of a revision id > rejects the same revision id arriving with a different digest or tenant 5ms
+     → promise resolved "{ identity: { …(4) }, created: false }" instead of rejecting
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| test/property/identity.property.test.ts > ledger contract — conflicting reuse of a revision id > rejects the same revision id arriving with a different digest or tenant
+AssertionError: promise resolved "{ identity: { …(4) }, created: false }" instead of rejecting
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error {[39m
+[32m-   "message": "rejected promise",[39m
+[31m+ {[39m
+[31m+   "created": false,[39m
+[31m+   "identity": {[39m
+[31m+     "customId": "rp_op_896e0356759ffa85da6f58f996b2bfd5",[39m
+[31m+     "invoiceId": "RP-896E0356759FFA85DA6F58F9",[39m
+[31m+     "operationId": "op_896e0356759ffa85da6f58f996b2bfd5",[39m
+[31m+     "paypalRequestId": "refundproof-896e0356759ffa85da6f58f996b2bfd54dd1a4da24d46c085d9488ce75657c9d",[39m
+[31m+   },[39m
+[2m  }[22m
+
+ ❯ test/property/identity.property.test.ts:172:113
+    170|     const d1 = 'a'.repeat(64);
+    171|     await ledger.ensureOperation({ tenantId: 't1', revisionId: 'rev_x'…
+    172|     await expect(ledger.ensureOperation({ tenantId: 't1', revisionId: …
+       |                                                                                                                 ^
+    173|       OperationConflictError,
+    174|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  |unit| test/unit/review-m00.test.ts > kernel validation (M00 review findings) > rejects hand-built money that bypasses money()
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/unit/review-m00.test.ts:22:58
+     20|   it('rejects hand-built money that bypasses money()', () => {
+     21|     const bad = (m: Money) => () => revisionDigest({ ...base, amount: …
+     22|     expect(bad({ currency: 'XXX' as never, minor: 1n })).toThrow(Propo…
+       |                                                          ^
+     23|     expect(bad({ currency: 'USD', minor: 10n ** 30n })).toThrow(Propos…
+     24|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  |unit| test/unit/review-m00.test.ts > kernel validation (M00 review findings) > rejects an unknown reason code in the digest path
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/unit/review-m00.test.ts:27:102
+     25| 
+     26|   it('rejects an unknown reason code in the digest path', () => {
+     27|     expect(() => revisionDigest({ ...base, reason: { code: 'BOGUS' as …
+       |                                                                                                      ^
+     28|       ProposalContentError,
+     29|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  |unit| test/unit/review-m00.test.ts > kernel validation (M00 review findings) > approval digest refuses offset-less or non-ISO instants and ignores extra properties
+AssertionError: expected [Function] to throw an error
+ ❯ test/unit/review-m00.test.ts:34:78
+     32|   it('approval digest refuses offset-less or non-ISO instants and igno…
+     33|     const b = { tenantId: 't', revisionId: 'r', revisionDigest: 'a'.re…
+     34|     expect(() => approvalDigest({ ...b, expiresAt: '2026-11-12T10:00:0…
+       |                                                                              ^
+     35|     expect(() => approvalDigest({ ...b, expiresAt: 'Thu, 12 Nov 2026 1…
+     36|     const d = approvalDigest({ ...b, expiresAt: '2026-11-12T10:00:00.0…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  |unit| test/unit/review-m00.test.ts > evidence-gated operation edges (M00 review finding) > SUBMITTING -> READY requires declared evidence
+ FAIL  |unit| test/unit/review-m00.test.ts > evidence-gated operation edges (M00 review finding) > SUBMITTING -> CANCELLED_BEFORE_DISPATCH requires declared evidence
+ FAIL  |unit| test/unit/review-m00.test.ts > evidence-gated operation edges (M00 review finding) > READY -> CANCELLED_BEFORE_DISPATCH requires declared evidence
+ FAIL  |unit| test/unit/review-m00.test.ts > evidence-gated operation edges (M00 review finding) > SUBMITTING -> PROVIDER_TERMINAL_NOT_APPLIED requires declared evidence
+ FAIL  |unit| test/unit/review-m00.test.ts > evidence-gated operation edges (M00 review finding) > RECONCILING -> PROVIDER_TERMINAL_NOT_APPLIED requires declared evidence
+ FAIL  |unit| test/unit/review-m00.test.ts > evidence-gated operation edges (M00 review finding) > SUBMITTING -> CONFIRMED requires declared evidence
+ FAIL  |unit| test/unit/review-m00.test.ts > evidence-gated operation edges (M00 review finding) > RECONCILING -> CONFIRMED requires declared evidence
+ FAIL  |unit| test/unit/review-m00.test.ts > evidence-gated operation edges (M00 review finding) > SUBMITTING -> RECONCILING requires declared evidence
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/unit/review-m00.test.ts:52:55
+     50|     ['SUBMITTING', 'RECONCILING'],
+     51|   ] as const)('%s -> %s requires declared evidence', (from, to) => {
+     52|     expect(() => assertOperationTransition(from, to)).toThrow(InvalidT…
+       |                                                       ^
+     53|   });
+     54| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  |unit| test/unit/review-m00.test.ts > evidence-gated operation edges (M00 review finding) > rejects the wrong kind of evidence
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/unit/review-m00.test.ts:56:88
+     54| 
+     55|   it('rejects the wrong kind of evidence', () => {
+     56|     expect(() => assertOperationTransition('SUBMITTING', 'READY', 'NEV…
+       |                                                                                        ^
+     57|     expect(() => assertOperationTransition('RECONCILING', 'CONFIRMED',…
+     58|       InvalidTransitionError,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  |unit| test/unit/review-m00.test.ts > retry hardening (M00 review finding) > rejects non-finite inputs and an excessive attempt bound
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/unit/review-m00.test.ts:68:89
+     66|   const p = { maxAttempts: 5, baseDelayMs: 100, maxDelayMs: 1000, tota…
+     67|   it('rejects non-finite inputs and an excessive attempt bound', () =>…
+     68|     expect(() => retryDecision(p, { attemptNo: 1, startedAtMs: 0, nowM…
+       |                                                                                         ^
+     69|     expect(() => retryDecision(p, { attemptNo: 1.5, startedAtMs: 0, no…
+     70|     expect(() => retryDecision(p, { attemptNo: 1, startedAtMs: 0, nowM…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  |unit| test/unit/review-m00.test.ts > retry hardening (M00 review finding) > is exhausted rather than retrying at the deadline instant
+AssertionError: expected 'RETRY' to be 'EXHAUSTED' // Object.is equality
+
+Expected: [32m"EXHAUSTED"[39m
+Received: [31m"RETRY"[39m
+
+ ❯ test/unit/review-m00.test.ts:74:94
+     72|   });
+     73|   it('is exhausted rather than retrying at the deadline instant', () =…
+     74|     expect(retryDecision(p, { attemptNo: 1, startedAtMs: 0, nowMs: 9_9…
+       |                                                                                              ^
+     75|   });
+     76| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  |unit| test/unit/review-m00.test.ts > exported JSON schema keeps the money format > carries a decimal pattern on money values
+AssertionError: expected '{"$schema":"https://json-schema.org/d…' to contain '"pattern"'
+
+Expected: [32m""pattern""[39m
+Received: [31m"{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","properties":{"tenantId":{"type":"string","minLength":1,"maxLength":128},"caseId":{"type":"string","minLength":1,"maxLength":128},"captureId":{"type":"string","minLength":1,"maxLength":128},"amount":{"oneOf":[{"type":"object","properties":{"kind":{"type":"string","const":"EXACT"},"amount":{"type":"object","properties":{"currency":{"type":"string","enum":["AUD","BRL","CAD","CNY","CZK","DKK","EUR","HKD","HUF","ILS","JPY","MYR","MXN","TWD","NZD","NOK","PHP","PLN","GBP","SGD","SEK","CHF","THB","USD"]},"value":{"type":"string","minLength":1,"maxLength":32}},"required":["currency","value"],"additionalProperties":false}},"required":["kind","amount"],"additionalProperties":false},{"type":"object","properties":{"kind":{"type":"string","const":"FULL"},"captureAmount":{"type":"object","properties":{"currency":{"type":"string","enum":["AUD","BRL","CAD","CNY","CZK","DKK","EUR","HKD","HUF","ILS","JPY","MYR","MXN","TWD","NZD","NOK","PHP","PLN","GBP","SGD","SEK","CHF","THB","USD"]},"value":{"type":"string","minLength":1,"maxLength":32}},"required":["currency","value"],"additionalProperties":false}},"required":["kind","captureAmount"],"additionalProperties":false}]},"reason":{"type":"object","properties":{"code":{"type":"string","enum":["DUPLICATE_CHARGE","ITEM_NOT_RECEIVED","ITEM_DEFECTIVE","NOT_AS_DESCRIBED","SERVICE_NOT_RENDERED","GOODWILL","OTHER"]},"noteToPayer":{"anyOf":[{"type":"string","minLength":1,"maxLength":255},{"type":"null"}]}},"required":["code","noteToPayer"],"additionalProperties":false},"evidenceDigests":{"minItems":1,"maxItems":64,"type":"array","items":{"type":"string"}},"policyVersion":{"type":"string","minLength":1,"maxLength":128}},"required":["tenantId","caseId","captureId","amount","reason","evidenceDigests","policyVersion"],"additionalProperties":false}"[39m
+
+ ❯ test/unit/review-m00.test.ts:80:57
+     78| describe('exported JSON schema keeps the money format', () => {
+     79|   it('carries a decimal pattern on money values', () => {
+     80|     expect(JSON.stringify(revisionContentJsonSchema())).toContain('"pa…
+       |                                                         ^
+     81|   });
+     82| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+
+ Test Files  2 failed | 6 passed (8)
+      Tests  16 failed | 75 passed (91)
+   Start at  15:30:57
+   Duration  940ms (transform 307ms, setup 0ms, collect 946ms, tests 505ms, environment 1ms, prepare 1.28s)
+
