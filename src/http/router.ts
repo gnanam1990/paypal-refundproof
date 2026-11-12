@@ -8,6 +8,14 @@ import { appendAudit } from '../services/audit';
 import { caseAuditTrail, createCase, getCaseForActor, listCases } from '../services/cases';
 import { admitEvidence, listEvidence } from '../services/evidence';
 import { reserveHit } from '../services/rate-limit';
+import {
+  approvalFacts,
+  decideRevision,
+  expireLapsedApprovals,
+  listPendingApprovals,
+  revokeApproval,
+  submitForApproval,
+} from '../services/approvals';
 import { fetchCaptureSnapshot, listSnapshots } from '../services/captures';
 import { authorRevision, generateProposal, listCitations, listInvocations } from '../services/proposals';
 import { listRevisions } from '../services/revisions';
@@ -239,6 +247,7 @@ route('POST', '/api/cases', async ({ ctx, actor, body }) =>
 );
 
 route('GET', '/api/cases/:caseId', async ({ ctx, actor, params }) => {
+  await expireLapsedApprovals(ctx.pool, actor.tenantId);
   const kase = await getCaseForActor(ctx.pool, actor, params.caseId!);
   const [evidence, revisions] = await Promise.all([
     listEvidence(ctx.pool, actor, kase.id),
@@ -296,4 +305,27 @@ route('POST', '/api/cases/:caseId/evidence', async ({ ctx, actor, params, body }
 
 route('GET', '/api/cases/:caseId/audit', async ({ ctx, actor, params }) =>
   json(200, await caseAuditTrail(ctx.pool, actor, params.caseId!)),
+);
+
+// ------------------------------------------------------------------------------------------------ approvals
+
+route('GET', '/api/approvals', async ({ ctx, actor }) => {
+  await expireLapsedApprovals(ctx.pool, actor.tenantId);
+  return json(200, { pending: await listPendingApprovals(ctx.pool, actor) });
+});
+
+route('GET', '/api/revisions/:revisionId/approval', async ({ ctx, actor, params }) =>
+  json(200, { facts: await approvalFacts(ctx.pool, actor, params.revisionId!) }),
+);
+
+route('POST', '/api/revisions/:revisionId/submit', async ({ ctx, actor, params, body }) =>
+  json(200, { facts: await submitForApproval(ctx.pool, actor, params.revisionId!, body) }),
+);
+
+route('POST', '/api/revisions/:revisionId/decision', async ({ ctx, actor, params, body }) =>
+  json(200, { facts: await decideRevision(ctx.pool, actor, params.revisionId!, body) }),
+);
+
+route('POST', '/api/approvals/:approvalId/revoke', async ({ ctx, actor, params, body }) =>
+  json(200, { facts: await revokeApproval(ctx.pool, actor, params.approvalId!, body) }),
 );
