@@ -34,23 +34,17 @@ export default function LoginPage() {
             <span>RefundProof</span>
           </div>
           <div>
-            <p className="eyebrow">Refund operations console</p>
-            <h1 id="login-product-title">Every refund tied to evidence, approval and provider truth.</h1>
+            <p className="login-context">Refund operations console</p>
+            <h1 id="login-product-title">PayPal refunds with evidence and approval.</h1>
             <p>
-              Turn support evidence into an exact PayPal refund, preserve independent approval and reconcile
-              ambiguous network outcomes without sending twice.
+              Bind an exact refund to redacted evidence, an independent decision and PayPal’s final provider
+              status.
             </p>
           </div>
           <ul className="login-assurances" aria-label="RefundProof safeguards">
-            <li>
-              <span>01</span> Evidence is redacted and digest-bound
-            </li>
-            <li>
-              <span>02</span> Approval binds one immutable revision
-            </li>
-            <li>
-              <span>03</span> Provider outcomes reconcile safely
-            </li>
+            <li>Evidence is redacted and digest-bound</li>
+            <li>Approval binds one immutable revision</li>
+            <li>Provider outcomes reconcile safely</li>
           </ul>
         </section>
         <section className="login-card" aria-labelledby="login-title">
