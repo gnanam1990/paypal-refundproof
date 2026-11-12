@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
+import { EXPECTED_MIGRATIONS } from './schema-version';
 
 const MIGRATIONS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'migrations');
 
@@ -16,6 +17,15 @@ export interface Migration {
 
 export function loadMigrations(dir = MIGRATIONS_DIR): Migration[] {
   const files = readdirSync(dir);
+  const versions = files
+    .filter((f) => f.endsWith('.up.sql'))
+    .map((f) => f.slice(0, 4))
+    .sort();
+  if (dir === MIGRATIONS_DIR && versions.join(',') !== EXPECTED_MIGRATIONS.join(',')) {
+    throw new Error(
+      `src/db/schema-version.ts lists ${EXPECTED_MIGRATIONS.join(',')} but migrations are ${versions.join(',')}`,
+    );
+  }
   return files
     .filter((f) => f.endsWith('.up.sql'))
     .sort()

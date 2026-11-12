@@ -25,6 +25,7 @@ import {
   resumeReconciliation,
 } from '../services/execution';
 import { authorRevision, generateProposal, listCitations, listInvocations } from '../services/proposals';
+import { healthDetail, liveness } from '../services/health';
 import { listRevisions } from '../services/revisions';
 import type { ApiContext } from './context';
 import { errorResponse, json } from './respond';
@@ -363,4 +364,18 @@ route('POST', '/api/operations/:operationId/reconcile', async ({ ctx, actor, par
 
 route('POST', '/api/operations/:operationId/escalate', async ({ ctx, actor, params, body }) =>
   json(200, await escalateOperation(ctx.pool, actor, params.operationId!, body)),
+);
+
+// ------------------------------------------------------------------------------------------------ health
+
+route('GET', '/api/health', async ({ ctx }) => json(200, await liveness(ctx.pool)), { auth: false });
+
+route('GET', '/api/health/detail', async ({ ctx, actor }) =>
+  json(200, {
+    health: await healthDetail(ctx.pool, actor, {
+      model: ctx.model ? { provider: ctx.model.provider, model: ctx.model.model } : null,
+      captureSource: ctx.captures?.label ?? null,
+      paypal: ctx.paypal ? ctx.paypal.label : null,
+    }),
+  }),
 );
