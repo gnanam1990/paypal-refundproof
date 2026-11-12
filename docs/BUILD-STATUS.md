@@ -7,7 +7,7 @@ Project status: **IN_PROGRESS**. Repository: `gnanam1990/paypal-refundproof` (pr
 | Module | Status | PRs | Merge SHA |
 | --- | --- | --- | --- |
 | M00 contracts | MERGED (two post-merge corrective PRs, both merged) | #1 (head `4ed3926`), #2 corrective (head `442ec3f`), #3 corrective (head `d0b033e`) | `b7d24aa`, `af73ca0`, `ea11710` |
-| M01 persistence-auth | IN_REVIEW — main `ea11710` merged in; PR open | M01 PR | — |
+| M01 persistence-auth | IN_REVIEW — corrective round for three reproduced integrity blockers; not merged | #4 | — |
 | M02 ai-proposal | NOT_RUN | — | — |
 | M03 approval-policy | NOT_RUN | — | — |
 | M04 paypal-reconciliation | NOT_RUN | — | — |
@@ -20,13 +20,22 @@ Project status: **IN_PROGRESS**. Repository: `gnanam1990/paypal-refundproof` (pr
 - **M01**: branch `m01-persistence-auth` (security fixes S1–S3) with main merged in twice, never rebased:
   `af73ca0` (merge `28e80bf`) and `ea11710` (merge `a2a659e`). The new audit gate then failed on M01's
   production dependency `next@15.5.29` (pins `postcss@8.4.31`: 2 high, 2 moderate); fixed by `next@16.4.6`.
+  The independent review of PR #4 at `c808bb9` reproduced three integrity blockers. Each is fixed by a forward
+  migration (DR-0004, `docs/evidence/M01-corrective/`):
+  - `0002`: a dispatching attempt could be rewritten as NOT_SENT;
+  - `0003`: a same-owner stale lease was not fenced;
+  - `0004`: cross-tenant or unbound evidence could confirm an operation.
+  The GitGuardian `scripts/seed.ts` finding remains an open hosted gate. It is a runtime-generated-password false
+  positive, is not resolved in the dashboard, and history is not rewritten.
 
 ## CI
 
 Hosted GitHub Actions: **CI_BLOCKED** — the job is never started ("recent account payments have failed or
 your spending limit needs to be increased"); zero steps have run on any PR. Every CI result recorded in a PR
 is the local substitute `scripts/local-ci.sh <sha>`: fresh clone of the remote at the exact SHA, then the
-workflow's steps. GitGuardian (hosted app) has run and passed.
+workflow's steps. GitGuardian (hosted app) passed on PRs #1–#3. On PR #4 it reports a "Generic Password" in
+`scripts/seed.ts` (commit `76fa6a2`): a false positive on a runtime `randomBytes` value. It stays open: it is
+not dismissed in the dashboard, and no history is rewritten.
 
 ## Integrations
 
