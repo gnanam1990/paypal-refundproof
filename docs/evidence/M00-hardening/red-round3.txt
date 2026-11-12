@@ -1,0 +1,67 @@
+
+ RUN  v3.2.7 <repo>
+
+ ❯ |unit| test/property/m00-hardening-r2.property.test.ts (22 tests | 4 failed | 16 skipped) 14ms
+   ↓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only the revision id changes (identical content digest)
+   ↓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only tenantId changes
+   ↓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only revisionDigest changes
+   ↓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only approverId changes
+   ↓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only policyVersion changes
+   ↓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only expiresAt changes
+   ↓ R2-2 — bound identifiers are printable, without whitespace or control characters > rejects " " as an approver id
+   ↓ R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "\u0000" as an approver id
+   ↓ R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act a" as an approver id
+   ↓ R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act\n" as an approver id
+   ↓ R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "\tact" as an approver id
+   ↓ R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act" as an approver id
+   ↓ R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act " as an approver id
+   ↓ R2-3 — schema and domain measure string length identically > agrees on identifiers and notes containing astral (surrogate-pair) characters
+   ↓ R2-3 — schema and domain measure string length identically > treats 65 emoji (130 UTF-16 units) the same everywhere
+   ↓ R2-4 — exported patterns stay within the portable ECMA-262 subset > uses no lookaround, so RE2-based validators accept the schema
+   × R3 — content identifiers obey the same rule the approval binds; note length in code points > rejects a whitespace or non-ASCII tenantId in schema, zod and domain alike 7ms
+     → expected [ true, true, true ] to deeply equal [ false, false, false ]
+   × R3 — content identifiers obey the same rule the approval binds; note length in code points > rejects a whitespace or non-ASCII caseId in schema, zod and domain alike 1ms
+     → expected [ true, true, true ] to deeply equal [ false, false, false ]
+   × R3 — content identifiers obey the same rule the approval binds; note length in code points > rejects a whitespace or non-ASCII captureId in schema, zod and domain alike 2ms
+     → expected [ true, true, true ] to deeply equal [ false, false, false ]
+   × R3 — content identifiers obey the same rule the approval binds; note length in code points > rejects a whitespace or non-ASCII policyVersion in schema, zod and domain alike 1ms
+     → expected [ true, true, true ] to deeply equal [ false, false, false ]
+   ✓ R3 — content identifiers obey the same rule the approval binds; note length in code points > accepts content whose bound ids are exactly what approvalDigest accepts 2ms
+   ✓ R3 — content identifiers obey the same rule the approval binds; note length in code points > measures noteToPayer in code points: 255 emoji accepted, 256 rejected everywhere 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R3 — content identifiers obey the same rule the approval binds; note length in code points > rejects a whitespace or non-ASCII tenantId in schema, zod and domain alike
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R3 — content identifiers obey the same rule the approval binds; note length in code points > rejects a whitespace or non-ASCII caseId in schema, zod and domain alike
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R3 — content identifiers obey the same rule the approval binds; note length in code points > rejects a whitespace or non-ASCII captureId in schema, zod and domain alike
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R3 — content identifiers obey the same rule the approval binds; note length in code points > rejects a whitespace or non-ASCII policyVersion in schema, zod and domain alike
+AssertionError: expected [ true, true, true ] to deeply equal [ false, false, false ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[32m-   false,[39m
+[32m-   false,[39m
+[32m-   false,[39m
+[31m+   true,[39m
+[31m+   true,[39m
+[31m+   true,[39m
+[2m  ][22m
+
+ ❯ test/property/m00-hardening-r2.property.test.ts:110:97
+    108|       for (const bad of ['ten a', 'polé', '\u{1F600}', 'x\u0000']) {
+    109|         const doc = wire({ [k]: bad } as Partial<RevisionContentWire>);
+    110|         expect([validate(doc), RevisionContentJson.safeParse(doc).succ…
+       |                                                                                                 ^
+    111|           false,
+    112|           false,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 2 passed | 16 skipped (22)
+   Start at  16:15:12
+   Duration  527ms (transform 65ms, setup 0ms, collect 215ms, tests 14ms, environment 0ms, prepare 59ms)
+
