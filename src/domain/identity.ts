@@ -71,6 +71,8 @@ export interface ApprovalBinding {
 }
 
 const APPROVAL_DOMAIN = 'refundproof/approval/v1';
+/** Bound identifiers are server-generated: printable ASCII, no whitespace or control characters, 1..128. */
+const BOUND_ID = /^[\x21-\x7e]{1,128}$/;
 const UTC_INSTANT = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/;
 
 /**
@@ -98,8 +100,8 @@ export function assertRealUtcInstant(s: string): void {
 export function approvalDigest(b: ApprovalBinding): string {
   if (!isHexDigest(b.revisionDigest)) throw new IdentityError('revision digest must be sha256 hex');
   for (const k of ['tenantId', 'revisionId', 'approverId', 'policyVersion'] as const) {
-    if (typeof b[k] !== 'string' || b[k].length === 0 || b[k].length > 128) {
-      throw new IdentityError(`${k} must be a non-empty identifier of at most 128 characters`);
+    if (typeof b[k] !== 'string' || !BOUND_ID.test(b[k])) {
+      throw new IdentityError(`${k} must be 1..128 printable ASCII characters without whitespace`);
     }
   }
   assertRealUtcInstant(b.expiresAt);

@@ -1,0 +1,94 @@
+
+ RUN  v3.2.7 <repo>
+
+ ❯ |unit| test/property/m00-hardening-r2.property.test.ts (16 tests | 9 failed) 313ms
+   ✓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only the revision id changes (identical content digest) 12ms
+   ✓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only tenantId changes 0ms
+   ✓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only revisionDigest changes 0ms
+   ✓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only approverId changes 0ms
+   ✓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only policyVersion changes 0ms
+   ✓ R2-1 (INV-01) — an approval digest is bound to the exact revision id > changes when only expiresAt changes 0ms
+   × R2-2 — bound identifiers are printable, without whitespace or control characters > rejects " " as an approver id 2ms
+     → expected function to throw an error, but it didn't
+   × R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "\u0000" as an approver id 0ms
+     → expected function to throw an error, but it didn't
+   × R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act a" as an approver id 0ms
+     → expected function to throw an error, but it didn't
+   × R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act\n" as an approver id 0ms
+     → expected function to throw an error, but it didn't
+   × R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "\tact" as an approver id 0ms
+     → expected function to throw an error, but it didn't
+   × R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act" as an approver id 0ms
+     → expected function to throw an error, but it didn't
+   × R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act " as an approver id 0ms
+     → expected function to throw an error, but it didn't
+   ✓ R2-3 — schema and domain measure string length identically > agrees on identifiers and notes containing astral (surrogate-pair) characters 294ms
+   × R2-3 — schema and domain measure string length identically > treats 65 emoji (130 UTF-16 units) the same everywhere 2ms
+     → expected true to be false // Object.is equality
+   × R2-4 — exported patterns stay within the portable ECMA-262 subset > uses no lookaround, so RE2-based validators accept the schema 1ms
+     → expected '{"$schema":"https://json-schema.org/d…' not to match /\(\?[=!<]/
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R2-2 — bound identifiers are printable, without whitespace or control characters > rejects " " as an approver id
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "\u0000" as an approver id
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act a" as an approver id
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act\n" as an approver id
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "\tact" as an approver id
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act" as an approver id
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R2-2 — bound identifiers are printable, without whitespace or control characters > rejects "act " as an approver id
+AssertionError: expected function to throw an error, but it didn't
+ ❯ test/property/m00-hardening-r2.property.test.ts:60:66
+     58| describe('R2-2 — bound identifiers are printable, without whitespace o…
+     59|   it.each([' ', '\u0000', 'act a', 'act\n', '\tact', 'act\u007f', 'act…
+     60|     expect(() => approvalDigest({ ...binding, approverId: id })).toThr…
+       |                                                                  ^
+     61|   });
+     62| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R2-3 — schema and domain measure string length identically > treats 65 emoji (130 UTF-16 units) the same everywhere
+AssertionError: expected true to be false // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+ ❯ test/property/m00-hardening-r2.property.test.ts:79:27
+     77|   it('treats 65 emoji (130 UTF-16 units) the same everywhere', () => {
+     78|     const doc = wire({ caseId: '\u{1F600}'.repeat(65) });
+     79|     expect(validate(doc)).toBe(domainAccepts(doc));
+       |                           ^
+     80|     expect(RevisionContentJson.safeParse(doc).success).toBe(domainAcce…
+     81|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |unit| test/property/m00-hardening-r2.property.test.ts > R2-4 — exported patterns stay within the portable ECMA-262 subset > uses no lookaround, so RE2-based validators accept the schema
+AssertionError: expected '{"$schema":"https://json-schema.org/d…' not to match /\(\?[=!<]/
+
+[32m- Expected:[39m 
+/\(\?[=!<]/
+
+[31m+ Received:[39m 
+"{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"properties\":{\"tenantId\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":128},\"caseId\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":128},\"captureId\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":128},\"amount\":{\"oneOf\":[{\"type\":\"object\",\"properties\":{\"kind\":{\"type\":\"string\",\"const\":\"EXACT\"},\"amount\":{\"anyOf\":[{\"type\":\"object\",\"properties\":{\"currency\":{\"type\":\"string\",\"enum\":[\"AUD\",\"BRL\",\"CAD\",\"CNY\",\"CZK\",\"DKK\",\"EUR\",\"HKD\",\"ILS\",\"MYR\",\"MXN\",\"NZD\",\"NOK\",\"PHP\",\"PLN\",\"GBP\",\"SGD\",\"SEK\",\"CHF\",\"THB\",\"USD\"]},\"value\":{\"type\":\"string\",\"pattern\":\"^(?:[1-9][0-9]{0,9}(?:\\\\.[0-9]{1,2})?|0\\\\.(?=[0-9]*[1-9])[0-9]{1,2})$\"}},\"required\":[\"currency\",\"value\"],\"additionalProperties\":false},{\"type\":\"object\",\"properties\":{\"currency\":{\"type\":\"string\",\"enum\":[\"HUF\",\"JPY\",\"TWD\"]},\"value\":{\"type\":\"string\",\"pattern\":\"^[1-9][0-9]{0,11}$\"}},\"required\":[\"currency\",\"value\"],\"additionalProperties\":false}]}},\"required\":[\"kind\",\"amount\"],\"additionalProperties\":false},{\"type\":\"object\",\"properties\":{\"kind\":{\"type\":\"string\",\"const\":\"FULL\"},\"captureAmount\":{\"anyOf\":[{\"type\":\"object\",\"properties\":{\"currency\":{\"type\":\"string\",\"enum\":[\"AUD\",\"BRL\",\"CAD\",\"CNY\",\"CZK\",\"DKK\",\"EUR\",\"HKD\",\"ILS\",\"MYR\",\"MXN\",\"NZD\",\"NOK\",\"PHP\",\"PLN\",\"GBP\",\"SGD\",\"SEK\",\"CHF\",\"THB\",\"USD\"]},\"value\":{\"type\":\"string\",\"pattern\":\"^(?:[1-9][0-9]{0,9}(?:\\\\.[0-9]{1,2})?|0\\\\.(?=[0-9]*[1-9])[0-9]{1,2})$\"}},\"required\":[\"currency\",\"value\"],\"additionalProperties\":false},{\"type\":\"object\",\"properties\":{\"currency\":{\"type\":\"string\",\"enum\":[\"HUF\",\"JPY\",\"TWD\"]},\"value\":{\"type\":\"string\",\"pattern\":\"^[1-9][0-9]{0,11}$\"}},\"required\":[\"currency\",\"value\"],\"additionalProperties\":false}]}},\"required\":[\"kind\",\"captureAmount\"],\"additionalProperties\":false}]},\"reason\":{\"type\":\"object\",\"properties\":{\"code\":{\"type\":\"string\",\"enum\":[\"DUPLICATE_CHARGE\",\"ITEM_NOT_RECEIVED\",\"ITEM_DEFECTIVE\",\"NOT_AS_DESCRIBED\",\"SERVICE_NOT_RENDERED\",\"GOODWILL\",\"OTHER\"]},\"noteToPayer\":{\"anyOf\":[{\"type\":\"string\",\"minLength\":1,\"maxLength\":255},{\"type\":\"null\"}]}},\"required\":[\"code\",\"noteToPayer\"],\"additionalProperties\":false},\"evidenceDigests\":{\"minItems\":1,\"maxItems\":64,\"type\":\"array\",\"items\":{\"type\":\"string\",\"pattern\":\"^[0-9a-f]{64}$\"}},\"policyVersion\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":128}},\"required\":[\"tenantId\",\"caseId\",\"captureId\",\"amount\",\"reason\",\"evidenceDigests\",\"policyVersion\"],\"additionalProperties\":false}"
+
+ ❯ test/property/m00-hardening-r2.property.test.ts:87:19
+     85|   it('uses no lookaround, so RE2-based validators accept the schema', …
+     86|     const s = JSON.stringify(revisionContentJsonSchema());
+     87|     expect(s).not.toMatch(/\(\?[=!<]/);
+       |                   ^
+     88|   });
+     89| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 7 passed (16)
+   Start at  16:11:32
+   Duration  677ms (transform 41ms, setup 0ms, collect 150ms, tests 313ms, environment 0ms, prepare 40ms)
+

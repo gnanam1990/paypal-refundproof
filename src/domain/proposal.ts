@@ -41,6 +41,9 @@ export class ProposalContentError extends Error {
   override readonly name = 'ProposalContentError';
 }
 
+/** Length in Unicode code points — the unit JSON Schema `maxLength` (and the exported schema) uses. */
+export const codePointLength = (s: string) => [...s].length;
+
 export const REVISION_DIGEST_DOMAIN = 'refundproof/proposal-revision/v1';
 
 /** Shared bound for the domain, the zod schema and the exported JSON Schema (SECURITY: bounded evidence). */
@@ -53,7 +56,8 @@ export function amountCurrency(a: AmountSemantic) {
 export function normalizeRevisionContent(c: RevisionContent): RevisionContent {
   const bad = (m: string) => new ProposalContentError(m);
   for (const k of ['tenantId', 'caseId', 'captureId', 'policyVersion'] as const) {
-    if (typeof c[k] !== 'string' || c[k].length === 0 || c[k].length > 128) throw bad(`invalid ${k}`);
+    if (typeof c[k] !== 'string' || c[k].length === 0 || codePointLength(c[k]) > 128)
+      throw bad(`invalid ${k}`);
   }
   const a = c.amount;
   if (!a || (a.kind !== 'EXACT' && a.kind !== 'FULL')) throw bad('amount semantic must be EXACT or FULL');
@@ -67,7 +71,7 @@ export function normalizeRevisionContent(c: RevisionContent): RevisionContent {
   if (m.minor <= 0n) throw bad('refund amount must be positive');
   if (!(REFUND_REASON_CODES as readonly string[]).includes(c.reason?.code)) throw bad('unknown reason code');
   const note = c.reason?.noteToPayer;
-  if (note !== null && (typeof note !== 'string' || note.length === 0 || note.length > 255)) {
+  if (note !== null && (typeof note !== 'string' || note.length === 0 || codePointLength(note) > 255)) {
     throw bad('noteToPayer must be null or 1..255 characters');
   }
   // Bound the raw input before any dedup/sort work, so an oversized list is refused, not silently shrunk.

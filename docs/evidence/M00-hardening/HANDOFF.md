@@ -33,3 +33,23 @@ Mutation checks after fixes (both restored afterwards):
 Durable (database) re-verification of the T-006 chain — a changed intent creating a new stored revision,
 a new approval row and a new operation row — needs the approval service and is re-run in M03/M04
 integration tests. This PR is domain-only, like M00.
+
+## Round 2 — gaps from the independent re-review of `a45b6e6`
+
+The re-review verified H1–H4 **RESOLVED** (307 722 values × EXACT/FULL: 0 disagreements between Ajv, zod,
+`parseMoney` and `decodeRevisionContent`; no ReDoS at 1 M chars). It also found the gaps below, closed
+here before merge (red: [`red-round2.txt`](red-round2.txt), 9 failed / 7 passed of 16).
+
+| ID | Gap | Requirement | Test (`m00-hardening-r2.property.test.ts`) | Fix |
+| --- | --- | --- | --- | --- |
+| R2-1 | A mutant `approvalDigest` that drops `revisionId` survived the **whole** suite (an approval could validate for another revision with identical content) | FR-02, INV-01 | approval digest changes when only `revisionId` changes (property) and when each other bound field changes | coverage gap; mutation now caught (1 failure) |
+| R2-2 | `" "` and `"\u0000"` accepted as bound identifiers | FR-02 | 7 whitespace/control-character ids rejected | bound ids must match `^[\x21-\x7e]{1,128}$` |
+| R2-3 | Schema/zod count code points, domain counted UTF-16 units (65 emoji passed the schema, failed the domain) | FR-03 schema contract | three-way verdict agreement on random full-Unicode ids/notes + 65-emoji case | domain uses `codePointLength` |
+| R2-4 | `(?=…)` lookahead in exported patterns is rejected by RE2-based validators | portability of the contract | no lookaround in the exported schema | equivalent alternation `0\.(?:[1-9][0-9]{0,e-1}|0[1-9]…)` |
+
+Accepted, documented, not changed: (a) zod error shape for an unknown currency is now a nested
+`invalid_union` (no code reads error shapes; API tests assert status and code only); (b) the exported
+patterns follow ECMA-262 as JSON Schema 2020-12 specifies — Python `re`'s `$` matching before a trailing
+newline is a non-conforming dialect.
+
+After round 2: unit suite 10 files, **145 tests**.

@@ -15,7 +15,13 @@ if (MAX_MINOR !== 10n ** BigInt(MAX_MINOR_DIGITS) - 1n) {
 export function positiveValuePattern(exponent: number): string {
   const wholeMax = MAX_MINOR_DIGITS - exponent; // digits allowed before the decimal point
   if (exponent === 0) return `^[1-9][0-9]{0,${wholeMax - 1}}$`;
-  return `^(?:[1-9][0-9]{0,${wholeMax - 1}}(?:\\.[0-9]{1,${exponent}})?|0\\.(?=[0-9]*[1-9])[0-9]{1,${exponent}})$`;
+  // 0.x positives without lookaround (portable to RE2 validators): the first non-zero digit sits at
+  // fractional position k (1..exponent), preceded by k-1 zeros and followed by up to exponent-k digits.
+  const fractional = Array.from(
+    { length: exponent },
+    (_, i) => `${'0'.repeat(i)}[1-9][0-9]{0,${exponent - i - 1}}`,
+  ).join('|');
+  return `^(?:[1-9][0-9]{0,${wholeMax - 1}}(?:\\.[0-9]{1,${exponent}})?|0\\.(?:${fractional}))$`;
 }
 
 const byExponent = new Map<number, CurrencyCode[]>();
