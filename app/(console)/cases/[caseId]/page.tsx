@@ -188,6 +188,48 @@ export default function CaseWorkspace() {
     ? data.citations.filter((c) => c.invocationId === live.modelInvocationId)
     : [];
   const op = live ? data.operations.find((o) => o.revisionId === live.id) : data.operations.at(-1);
+  const workflow = [
+    {
+      label: 'Evidence',
+      detail: data.evidence.length
+        ? `${data.evidence.length} source${data.evidence.length === 1 ? '' : 's'} admitted`
+        : 'No evidence admitted',
+      state: data.evidence.length ? 'complete' : 'current',
+    },
+    {
+      label: 'Capture',
+      detail: snapshot
+        ? `${snapshot.amount.value} ${snapshot.amount.currency} · ${snapshot.status.toLowerCase()}`
+        : 'No PayPal capture',
+      state: snapshot ? 'complete' : data.evidence.length ? 'current' : 'upcoming',
+    },
+    {
+      label: 'Approval',
+      detail: live
+        ? live.state === 'APPROVED'
+          ? `Revision ${live.revisionNo} approved`
+          : `Revision ${live.revisionNo} · ${live.state.toLowerCase()}`
+        : 'No proposal recorded',
+      state:
+        live?.state === 'APPROVED' || op
+          ? 'complete'
+          : live?.state === 'DRAFT' || live?.state === 'REVIEWABLE'
+            ? 'current'
+            : 'upcoming',
+    },
+    {
+      label: 'Provider outcome',
+      detail: op ? op.state.toLowerCase().replace(/_/g, ' ') : 'Not sent to PayPal',
+      state:
+        op?.state === 'CONFIRMED'
+          ? 'complete'
+          : op
+            ? 'current'
+            : live?.state === 'APPROVED'
+              ? 'current'
+              : 'upcoming',
+    },
+  ] as const;
 
   return (
     <>
@@ -203,11 +245,41 @@ export default function CaseWorkspace() {
             {data.case.customerRef ? `, customer reference ${data.case.customerRef}` : ''}.
           </p>
         </div>
+        <div className="case-state" aria-label="Current case state">
+          <span>Current state</span>
+          {live ? <Status state={live.state} /> : <Status state="DRAFT" label="No proposal yet" />}
+          {op && <Status state={op.state} />}
+        </div>
       </div>
-      <div className="state-summary" aria-label="Case state">
-        {live ? <Status state={live.state} /> : <Status state="DRAFT" label="No proposal yet" />}
-        {op && <Status state={op.state} />}
-      </div>
+      <section className="refund-workflow" aria-labelledby="workflow-title">
+        <div className="workflow-copy">
+          <h2 id="workflow-title">Refund workflow</h2>
+          <p>
+            {op?.state === 'CONFIRMED'
+              ? 'PayPal confirmed the refund.'
+              : live?.state === 'APPROVED' && !op
+                ? 'The approved revision is ready to send.'
+                : 'Complete the current step to move this refund forward.'}
+          </p>
+        </div>
+        <ol>
+          {workflow.map((stage, index) => (
+            <li
+              key={stage.label}
+              className={stage.state}
+              aria-current={stage.state === 'current' ? 'step' : undefined}
+            >
+              <span className="workflow-marker" aria-hidden="true">
+                {stage.state === 'complete' ? <Icon name="check" /> : index + 1}
+              </span>
+              <span>
+                <strong>{stage.label}</strong>
+                <small>{stage.detail}</small>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
       <ErrorSummary error={actionError} />
       <div className="workspace">
         {/* ---------------- evidence */}

@@ -13,5 +13,6 @@ test-results/
 .tmp/
 next-env.d.ts
 .claude/
+.taste-skill/
 artifacts/
 *.tsbuildinfo

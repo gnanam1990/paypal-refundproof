@@ -40,7 +40,7 @@ function Shell({ children }: { children: ReactNode }) {
             <small>Evidence-bound refunds</small>
           </span>
         </Link>
-        <p className="nav-label">Workspace</p>
+        <p className="nav-label">Operations</p>
         <nav aria-label="Console">
           <ul>
             {NAV.map((n) => (
@@ -86,7 +86,7 @@ function Shell({ children }: { children: ReactNode }) {
           </div>
           <div className="topbar-note">
             <Icon name="shield" />
-            Human-approved · evidence-bound
+            Evidence → approval → provider
           </div>
         </header>
         <main className="main" id="main" tabIndex={-1}>
