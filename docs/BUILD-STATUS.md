@@ -8,7 +8,7 @@ Project status: **IN_PROGRESS**. Repository: `gnanam1990/paypal-refundproof` (pr
 | --- | --- | --- | --- |
 | M00 contracts | MERGED (two post-merge corrective PRs, both merged) | #1 (head `4ed3926`), #2 corrective (head `442ec3f`), #3 corrective (head `d0b033e`) | `b7d24aa`, `af73ca0`, `ea11710` |
 | M01 persistence-auth | MERGED (reviewed head `c6994de`) | #4 | `72dd748` |
-| M02 ai-proposal | NOT_RUN | — | — |
+| M02 ai-proposal | IN_REVIEW — built (build-first); T-002 adversarial matrix deferred to FINAL TEST; real model call BLOCKED_CREDENTIAL | M02 PR | — |
 | M03 approval-policy | NOT_RUN | — | — |
 | M04 paypal-reconciliation | NOT_RUN | — | — |
 | M05 product-ui-delivery | NOT_RUN | — | — |
