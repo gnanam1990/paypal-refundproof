@@ -9,8 +9,8 @@ Project status: **IN_PROGRESS**. Repository: `gnanam1990/paypal-refundproof` (pr
 | M00 contracts | MERGED (two post-merge corrective PRs, both merged) | #1 (head `4ed3926`), #2 corrective (head `442ec3f`), #3 corrective (head `d0b033e`) | `b7d24aa`, `af73ca0`, `ea11710` |
 | M01 persistence-auth | MERGED (reviewed head `c6994de`) | #4 | `72dd748` |
 | M02 ai-proposal | MERGED (head `e40b34e`, fast typecheck review); T-002 matrix deferred to FINAL TEST; real model call BLOCKED_CREDENTIAL | #5 | `eff4545` |
-| M03 approval-policy | IN_REVIEW — built (build-first); T-003/T-004 matrices deferred to FINAL TEST | M03 PR | — |
-| M04 paypal-reconciliation | NOT_RUN | — | — |
+| M03 approval-policy | MERGED (head `10cb2d0`); T-003/T-004 matrices deferred to FINAL TEST | #6 | `8d3bb46` |
+| M04 paypal-reconciliation | IN_REVIEW — built (build-first); sandbox acceptance (T-007/T-009/T-010) BLOCKED_CREDENTIAL | M04 PR | — |
 | M05 product-ui-delivery | NOT_RUN | — | — |
 
 - **M00**: PR #1 merged; a post-merge review of `4ed3926` found H1–H4, closed by PR #2 (`af73ca0`). An
