@@ -21,8 +21,7 @@ beforeAll(async () => {
 afterAll(() => db.drop());
 
 const opA = () => makeOperation(db.pool, w.operator, w.approver);
-// Tenant B's only actor signs its own (test-only) approval; the database binds approver to tenant, not role.
-const opB = () => makeOperation(db.pool, w.outsider, w.outsider);
+const opB = () => makeOperation(db.pool, w.outsider, w.outsiderApprover);
 async function submittingA(): Promise<TestOperation> {
   const op = await opA();
   await setOperationState(db.pool, op.operationId, 'SUBMITTING');

@@ -98,7 +98,8 @@ describe('database-enforced safety constraints', () => {
     const rev = await insertRevision(db.pool, w.operator, {
       caseId: c.id,
       content: content(w.tenantId, c.id),
-      origin: 'AI',
+      // An AI revision now needs a SUCCEEDED model invocation (0005); the DRAFT rule applies to any origin.
+      origin: 'HUMAN',
       correctionReasons: ['UNCITED_CLAIM'],
     });
     await expect(

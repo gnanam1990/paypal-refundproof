@@ -15,6 +15,8 @@ export interface World {
   admin: Actor;
   otherTenantId: string;
   outsider: Actor;
+  /** Tenant B's approver (separation of duties: an author never decides its own revision). */
+  outsiderApprover: Actor;
 }
 
 /** Labeled test-only identities created through the real tenancy service. */
@@ -37,6 +39,7 @@ export async function seedWorld(pool: pg.Pool): Promise<World> {
     admin: await mk(t.id, 'ADMIN', 'admin'),
     otherTenantId: o.id,
     outsider: await mk(o.id, 'OPERATOR', 'outsider'),
+    outsiderApprover: await mk(o.id, 'APPROVER', 'outsider-approver'),
   };
 }
 
@@ -66,10 +69,39 @@ export async function approveForTest(
   await pool.query(`update proposal_revisions set state = 'REVIEWABLE' where id = $1 and state = 'DRAFT'`, [
     rev.id,
   ]);
+  // Databases rehearsing an upgrade may predate approval requests (0006); write the rows that schema had.
+  const modern = (await pool.query(`select to_regclass('approval_requests') as t`)).rows[0].t !== null;
+  if (!modern) {
+    await pool.query(
+      `insert into approvals (id, tenant_id, revision_id, revision_digest, approval_digest, approver_id, decision, policy_version, expires_at)
+       values ($1, $2, $3, $4, $5, $6, 'APPROVED', 'policy-v1', $7)`,
+      [id, rev.tenantId, rev.id, rev.digest, digest, approver.id, expiresAt],
+    );
+    await pool.query(`update proposal_revisions set state = 'APPROVED' where id = $1`, [rev.id]);
+    return { approvalId: id, expiresAt };
+  }
+  const requestId = `areq_test_${randomBytes(6).toString('hex')}`;
   await pool.query(
-    `insert into approvals (id, tenant_id, revision_id, revision_digest, approval_digest, approver_id, decision, policy_version, expires_at)
-     values ($1, $2, $3, $4, $5, $6, 'APPROVED', 'policy-v1', $7)`,
-    [id, rev.tenantId, rev.id, rev.digest, digest, approver.id, expiresAt],
+    `insert into approval_requests (id, tenant_id, case_id, revision_id, revision_digest, requested_by)
+     values ($1, $2, $3, $4, $5, $6) on conflict (revision_id) do nothing`,
+    [requestId, rev.tenantId, rev.caseId, rev.id, rev.digest, rev.authoredBy],
+  );
+  const req = await pool.query('select id from approval_requests where revision_id = $1', [rev.id]);
+  await pool.query(
+    `insert into approvals (id, tenant_id, revision_id, revision_digest, approval_digest, approver_id, decision,
+       policy_version, expires_at, request_id, full_refund_acknowledged)
+     values ($1, $2, $3, $4, $5, $6, 'APPROVED', 'policy-v1', $7, $8, $9)`,
+    [
+      id,
+      rev.tenantId,
+      rev.id,
+      rev.digest,
+      digest,
+      approver.id,
+      expiresAt,
+      req.rows[0].id,
+      rev.content.amount.kind === 'FULL',
+    ],
   );
   await pool.query(`update proposal_revisions set state = 'APPROVED' where id = $1`, [rev.id]);
   return { approvalId: id, expiresAt };
