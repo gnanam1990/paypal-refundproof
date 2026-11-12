@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "status": "SPECIFICATION_ONLY",
+  "definitions": {
+    "functional": [
+      {"id":"FR-01","title":"Evidence-bound proposal","definition":"An authenticated operator can convert a support case and PayPal capture into a structured refund proposal without executing a refund."},
+      {"id":"FR-02","title":"Exact approval","definition":"An approval binds the proposal revision, capture, amount, currency, reason, approver, and expiry and becomes invalid when any bound field changes."},
+      {"id":"FR-03","title":"Idempotent execution","definition":"One approved proposal revision maps to one immutable operation identity and one PayPal request identifier, while a changed intent receives a new identity."},
+      {"id":"FR-04","title":"Unknown outcome handling","definition":"A timeout or lost response produces an outcome-unknown state that blocks blind retry and never becomes a definite failure automatically."},
+      {"id":"FR-05","title":"Independent reconciliation","definition":"The service reconciles an uncertain refund using recorded identifiers and permits a new provider operation only after durable proof that no dispatch occurred or a documented terminal PayPal non-application observation."},
+      {"id":"FR-06","title":"Evidence and recovery","definition":"Authorized users can inspect a durable redacted evidence trail and recover a case through documented retry, escalation, or terminal resolution paths."}
+    ],
+    "nonfunctional": [
+      {"id":"NFR-01","title":"Durable recovery","definition":"Accepted intents, approvals, operations, provider observations, and state transitions survive process restart without manual database repair."},
+      {"id":"NFR-02","title":"Secret and data protection","definition":"PayPal credentials and customer evidence are least-privileged, encrypted or redacted as appropriate, and never included in model prompts or logs beyond declared fields."},
+      {"id":"NFR-03","title":"Observable bounded work","definition":"External calls use deadlines, bounded retries, correlation identifiers, structured metrics, and an explicit exhausted state."}
+    ],
+    "invariants": [
+      {"id":"INV-01","title":"Approval identity","definition":"Execution is permitted only for the exact unexpired revision that an authorized approver approved."},
+      {"id":"INV-02","title":"Single effect identity","definition":"One approved proposal revision has exactly one immutable effectful operation and provider request identity, while all retries are attempts within that operation."},
+      {"id":"INV-03","title":"No false finality","definition":"Local success or failure is never asserted until supported by an authoritative PayPal observation or an explicit unresolved outcome."}
+    ]
+  },
+  "tests": [
+    {"id":"T-001","title":"Persist proposal and evidence digest","status":"NOT_RUN"},
+    {"id":"T-002","title":"Reject unsupported AI fields","status":"NOT_RUN"},
+    {"id":"T-003","title":"Invalidate changed approval","status":"NOT_RUN"},
+    {"id":"T-004","title":"Require explicit full refund consent","status":"NOT_RUN"},
+    {"id":"T-005","title":"Reuse request identity on same retry","status":"NOT_RUN"},
+    {"id":"T-006","title":"Separate changed refund intent","status":"NOT_RUN"},
+    {"id":"T-007","title":"Convert lost response to unknown","status":"NOT_RUN"},
+    {"id":"T-008","title":"Recover after process restart","status":"NOT_RUN"},
+    {"id":"T-009","title":"Observe completed sandbox refund","status":"NOT_RUN"},
+    {"id":"T-010","title":"Block duplicate refund after timeout","status":"NOT_RUN"},
+    {"id":"T-011","title":"Render honest partial and error states","status":"NOT_RUN"},
+    {"id":"T-012","title":"Complete clean-checkout end-to-end run","status":"NOT_RUN"}
+  ],
+  "modules": [
+    {"id":"M00","name":"contracts","file":"prompts/M00-contracts.md","requirements":["FR-03"],"nonfunctional":["NFR-03"],"invariants":["INV-02"],"tests":["T-005","T-006"],"dependsOn":[],"status":"NOT_RUN"},
+    {"id":"M01","name":"persistence-auth","file":"prompts/M01-persistence-auth.md","requirements":["FR-06"],"nonfunctional":["NFR-01"],"invariants":["INV-03"],"tests":["T-001","T-008"],"dependsOn":["M00"],"status":"NOT_RUN"},
+    {"id":"M02","name":"ai-proposal","file":"prompts/M02-ai-proposal.md","requirements":["FR-01"],"nonfunctional":["NFR-02"],"invariants":["INV-03"],"tests":["T-002"],"dependsOn":["M01"],"status":"NOT_RUN"},
+    {"id":"M03","name":"approval-policy","file":"prompts/M03-approval-policy.md","requirements":["FR-02"],"nonfunctional":["NFR-02"],"invariants":["INV-01"],"tests":["T-003","T-004"],"dependsOn":["M02"],"status":"NOT_RUN"},
+    {"id":"M04","name":"paypal-reconciliation","file":"prompts/M04-paypal-reconciliation.md","requirements":["FR-04","FR-05"],"nonfunctional":["NFR-03"],"invariants":["INV-02","INV-03"],"tests":["T-007","T-009","T-010"],"dependsOn":["M03"],"status":"NOT_RUN"},
+    {"id":"M05","name":"product-ui-delivery","file":"prompts/M05-product-ui-delivery.md","requirements":["FR-06"],"nonfunctional":["NFR-01","NFR-02","NFR-03"],"invariants":["INV-01","INV-02","INV-03"],"tests":["T-011","T-012"],"dependsOn":["M04"],"status":"NOT_RUN"}
+  ]
+}

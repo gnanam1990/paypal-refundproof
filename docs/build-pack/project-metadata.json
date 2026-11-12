@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "project": "RefundProof",
+  "slug": "paypal-refundproof",
+  "status": "SPECIFICATION_ONLY",
+  "implementation": "NOT_RUN",
+  "productTests": "NOT_RUN",
+  "runtimeTests": "NOT_RUN",
+  "integrationTests": "NOT_RUN",
+  "deployment": "NOT_RUN",
+  "eventSubmission": "NOT_RUN",
+  "publication": "NOT_RUN",
+  "marketValidation": "UNPROVEN",
+  "event": "PayPal AI Hackathon 2026",
+  "proposedRepository": {"owner":"gnanam1990","name":"gnanam1990/paypal-refundproof","visibility":"private","status":"NOT_RUN"},
+  "eventDeadline": "2026-11-12T20:00:00Z",
+  "counts": {"functional": 6, "nonfunctional": 3, "invariants": 3, "modules": 6, "testCases": 12}
+}

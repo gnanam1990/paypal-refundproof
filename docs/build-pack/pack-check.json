@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "metadataFile": "project-metadata.json",
+  "registryFile": "requirements.json",
+  "coreFile": "CORE-CONTRACT.md",
+  "testPlanFile": "TEST-PLAN.md",
+  "requiredFiles": [
+    {
+      "path": "START-HERE.md",
+      "minBytes": 500
+    },
+    "MASTER-PROMPT.md",
+    "PRD.md",
+    "TDD.md",
+    "UI-SPEC.md",
+    "SECURITY.md",
+    "DELIVERY.md",
+    "IMPLEMENTATION-PLAN.md",
+    "REAL-PRODUCT-GATE.md",
+    "EVENT-NOTES.md",
+    "SOURCES.md",
+    "SEMANTIC-REVIEW.md",
+    "AGENTS.md",
+    "PACK-QA.md"
+  ],
+  "inventoryFile": "PACK-INVENTORY.json"
+}

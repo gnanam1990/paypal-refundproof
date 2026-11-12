@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "note": "Integrity does not establish authenticity, semantic correctness, product execution or event eligibility.",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 512,
+      "sha256": "9a72f4d1d8229008d98ce2d6d629bb595635238ed9b5b230f99123470393e448"
+    },
+    {
+      "path": "CORE-CONTRACT.md",
+      "bytes": 2259,
+      "sha256": "ac1376465f61a7491300a3b997db160679b96abab6cc4e3815639de0394b9f3d"
+    },
+    {
+      "path": "DELIVERY.md",
+      "bytes": 1075,
+      "sha256": "b9710ec508834bbc7579cc7c0dade5c4bfa6abec0dc1b52e1a2b378ac2a41a59"
+    },
+    {
+      "path": "EVENT-NOTES.md",
+      "bytes": 669,
+      "sha256": "aaf054cdc6d22f9725ec661852ee1c14328f4c145aee5a248eae419ed61a875e"
+    },
+    {
+      "path": "IMPLEMENTATION-PLAN.md",
+      "bytes": 951,
+      "sha256": "eb0fc81896c1924d12b1976e49b04f9bda319734b14a67e05bdcff6ce67becf0"
+    },
+    {
+      "path": "MASTER-PROMPT.md",
+      "bytes": 1491,
+      "sha256": "5a4b8b7707c94426e0d9e240ba979366a094177450bee4925e910b4e776589ed"
+    },
+    {
+      "path": "pack-check.json",
+      "bytes": 575,
+      "sha256": "504572ede1f4efa0d911520660bce7f1ce429a1c6c72aa82d873ab89e75419ec"
+    },
+    {
+      "path": "PACK-QA.md",
+      "bytes": 479,
+      "sha256": "2d90d0d73fc4d8690cd0d525773590eb53fdb3329791b41a67eb02a969a02c9f"
+    },
+    {
+      "path": "PRD.md",
+      "bytes": 2161,
+      "sha256": "facf6ccad0a65326eafd621bd27ba4c6dca0975d16598425cbc40765fd1d8b4e"
+    },
+    {
+      "path": "project-metadata.json",
+      "bytes": 672,
+      "sha256": "263c4e7af92950c4f520f3464e6bcbbb2c7614c6e46eb86f957c63979b34c728"
+    },
+    {
+      "path": "prompts/M00-contracts.md",
+      "bytes": 1855,
+      "sha256": "604016f69d51256c33f7d6ef5f8192d59cf226b2738b3eefa07c42d3cab85ab3"
+    },
+    {
+      "path": "prompts/M01-persistence-auth.md",
+      "bytes": 1696,
+      "sha256": "3e01a6b2347376e62244abe07c9e3bbc4d5ed532476258ef056e50fa82f6d2a0"
+    },
+    {
+      "path": "prompts/M02-ai-proposal.md",
+      "bytes": 1766,
+      "sha256": "81d6ffc49f96541e57a92200d6fb87450ef78c0ee16651657a3d0f0a66c6243e"
+    },
+    {
+      "path": "prompts/M03-approval-policy.md",
+      "bytes": 1648,
+      "sha256": "4990436d9988bcb2bcf2d2f1a7ab40a391dd9f5f7d8bc36fb56d4018495c18da"
+    },
+    {
+      "path": "prompts/M04-paypal-reconciliation.md",
+      "bytes": 1987,
+      "sha256": "0566fa631bc5a53776887dc40517d9810f5b3d030a9a0286462e26397b596bc1"
+    },
+    {
+      "path": "prompts/M05-product-ui-delivery.md",
+      "bytes": 1972,
+      "sha256": "9e1f63860757a97ca67b2d75ceb7e11e4719110baec3c84cbbc2562a53d39f0b"
+    },
+    {
+      "path": "REAL-PRODUCT-GATE.md",
+      "bytes": 643,
+      "sha256": "8701d45932e6d484c0fd7c6b637aba5a62702f23407fbed80b3a655c84c7fc55"
+    },
+    {
+      "path": "requirements.json",
+      "bytes": 5194,
+      "sha256": "87ed671d18b9fd60a44fa5cfe41e80e54b1437a2d1528cbe156edc8a332aaa36"
+    },
+    {
+      "path": "scripts/check-build-pack.mjs",
+      "bytes": 33599,
+      "sha256": "befab469d23feaf4b77abb8554dbecd94a2095ef6470c1d6dc70d4c042caa9dc"
+    },
+    {
+      "path": "SECURITY.md",
+      "bytes": 1114,
+      "sha256": "97724f6319342c1f876a2f7f70437df9ba3956552a8581d0b17acbc180d0e00e"
+    },
+    {
+      "path": "SEMANTIC-REVIEW.md",
+      "bytes": 889,
+      "sha256": "847584e71c30f758bbab705022cc8cbcdf18702f810faaceb1781e5886c935cf"
+    },
+    {
+      "path": "SOURCES.md",
+      "bytes": 793,
+      "sha256": "df40cf81985a4f5291f011bb788c63fc70cf546f039bb67edc1c52a843119bd2"
+    },
+    {
+      "path": "START-HERE.md",
+      "bytes": 1805,
+      "sha256": "1c6f626ddd42a6d5a0c50166fa7eb8cca02d816d9fbc88dd4c8ef1b4a3718c58"
+    },
+    {
+      "path": "TDD.md",
+      "bytes": 2759,
+      "sha256": "0932091c29ee9518719a369b22c35797678e63f6df2ea524f1f1067bc2d31a3d"
+    },
+    {
+      "path": "templates/BUILD-STATUS.md",
+      "bytes": 252,
+      "sha256": "819aec33c318674a1e60ca0d252fad641c0de4779c6879f6d1f7a8584b0e14d8"
+    },
+    {
+      "path": "templates/DECISION-RECORD.md",
+      "bytes": 195,
+      "sha256": "af1fb9ff74d375d0e4d107eaf92912c1eedf495fd20ad556eb93dc547a6f71b7"
+    },
+    {
+      "path": "templates/PR-BODY.md",
+      "bytes": 292,
+      "sha256": "526bad1f334a6a552865fdd0353f076c16c0b0f97353c93dc3d5564108e629de"
+    },
+    {
+      "path": "templates/REVIEW-CHECKLIST.md",
+      "bytes": 393,
+      "sha256": "1a0297eaa2dc3bbb99b2259cb0228d829237ae160a52de7df4c6e9ee26653605"
+    },
+    {
+      "path": "TEST-PLAN.md",
+      "bytes": 2201,
+      "sha256": "820c8ffc956dbc94c4facfd9b75593bf7012ee043292e918e83454eab891c85b"
+    },
+    {
+      "path": "UI-SPEC.md",
+      "bytes": 1969,
+      "sha256": "38c19339076fdf10a74ed7d8d292f86df0ae22abd142ca91260d27ead5efef2b"
+    }
+  ]
+}
